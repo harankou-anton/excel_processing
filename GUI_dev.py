@@ -5,7 +5,7 @@ import sys
 from tkinter import *
 from tkinter import filedialog
 from tkinter.ttk import Combobox, Checkbutton, Radiobutton
-from scr.RA_template2_7 import AddressFiles
+from scr.RA_template2_8 import AddressFiles
 
 
 # Тупо для иконки в exe
