@@ -91,9 +91,9 @@ fields_excel = [
     ['Координата X (СК 1942)', 'XCK42', False, 'object', 66, 'float'],
     ['Координата Y (СК 1942)', 'YCK42', False, 'object', 67, 'float'],
     ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'object', 68, 'date'],
-    ['Дата упразднения', 'DATE_ANNUL', False, 'object', 69, 'date'],
+    ['Дата упразднения', 'DATE_ANNUL', False, 'str', 69, 'date'],
     ['Орган. док', 'DOC_STATE', False, 'str', 70, 'str'],
-    ['Дата документа', 'DOC_DATE', False, 'object', 71, 'date'],
+    ['Дата документа', 'DOC_DATE', False, 'str', 71, 'date'],
     ['Номер документа', 'DOC_NUM', False, 'str', 72, 'str'],
     ['Примечание документа', 'DOC_REMARK', False, 'str', 73, 'str'],
     ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 74, 'str'],
@@ -304,10 +304,10 @@ def start_button_func():
     if checkbox_round_coords.get() is True and fill_round_entry.get() == '':
         logger_window.insert(0.0, '--Не указано значение "Округление координат"\n')
         return
-    if checkbox_ate.get() is True and (list_checkboxes[27].get() is False or list_checkboxes[39].get() is False):
-        logger_window.insert(0.0, '--Для проверки координат должны быть отмечены и присутствовать в исходном файле '
-                                  'поля "Наименование района" и "Наименование населенного пункта на русском языке"\n')
-        return
+    # if checkbox_ate.get() is True and (list_checkboxes[27].get() is False and list_checkboxes[39].get() is False):
+    #     logger_window.insert(0.0, '--Для проверки координат должны быть отмечены и присутствовать в исходном файле '
+    #                               'поля "Наименование района" и "Наименование населенного пункта на русском языке"\n')
+    #     return
     numbers = {}
     for num, check_position in enumerate(list_checkboxes):
         if check_position.get() is True:

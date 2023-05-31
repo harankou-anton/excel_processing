@@ -165,7 +165,7 @@ class AddressFiles(object):
             intersect = to_gdf.sjoin(data_regions, how='inner')
             intersect['ID_DISTR_VALUES'] = intersect.apply(lambda x:
                                                            True if int(x[self.fields[33][1]])
-                                                                   in object_number_check[int(x['IDDISTRICT'])]
+                                                                   in object_number_check[x['IDDISTRICT']]
                                                            else False, axis=1)
 
             correct_coords = intersect[intersect['ID_DISTR_VALUES'] == True]
@@ -282,14 +282,14 @@ class AddressFiles(object):
         names = self.get_fields()[0]
         types = self.get_fields()[1]
         for_dates_parse = []
-        if fields_excel[10][2]:
-            for_dates_parse.append(names.index(fields_excel[10][1]))
-        if fields_excel[69][2]:
-            for_dates_parse.append(names.index(fields_excel[69][1]))
-        if fields_excel[70][2]:
-            for_dates_parse.append(names.index(fields_excel[70][1]))
-        if fields_excel[72][2]:
-            for_dates_parse.append(names.index(fields_excel[72][1]))
+        if self.fields[10][2]:
+            for_dates_parse.append(names.index(self.fields[10][1]))
+        if self.fields[69][2]:
+            for_dates_parse.append(names.index(self.fields[69][1]))
+        if self.fields[70][2]:
+            for_dates_parse.append(names.index(self.fields[70][1]))
+        if self.fields[72][2]:
+            for_dates_parse.append(names.index(self.fields[72][1]))
         if len(for_dates_parse) == 0:
             for_dates_parse = False
         df = pd.read_csv(file_name, sep=";", dtype=dict(zip(names, types)), na_filter=False, names=names,
