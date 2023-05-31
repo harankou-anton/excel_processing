@@ -31,7 +31,7 @@ fields_excel = [
     ['Инвентарный (кадастровый) номер', 'INVNUMBER', False, 'str', 8, 'str:18'],
     ['Почтовый индекс', 'POSTINDEX', False, 'object', 9, 'int32'],
     ['Дополнительные сведения', 'REMARK', False, 'str', 10, 'str'],
-    ['Дата последнего редактирования адреса', 'DATE_REG', False, 'datetime64', 11, 'date'],
+    ['Дата последнего редактирования адреса', 'DATE_REG', False, 'object', 11, 'date'],
     ['Код вида работ', 'ID_SPEC', False, 'object', 12, 'int:5'],
     ['Вид работ', 'GROUND', False, 'str', 13, 'str:100'],
     ['Код типа документа', 'CODE_DOC', False, 'object', 14, 'int:5'],
@@ -90,7 +90,7 @@ fields_excel = [
     ['Долгота (WGS 1984)', 'YCOORD', False, 'object', 65, 'float'],
     ['Координата X (СК 1942)', 'XCK42', False, 'object', 66, 'float'],
     ['Координата Y (СК 1942)', 'YCK42', False, 'object', 67, 'float'],
-    ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'datetime64', 68, 'date'],
+    ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'object', 68, 'date'],
     ['Дата упразднения', 'DATE_ANNUL', False, 'object', 69, 'date'],
     ['Орган. док', 'DOC_STATE', False, 'str', 70, 'str'],
     ['Дата документа', 'DOC_DATE', False, 'object', 71, 'date'],
@@ -98,7 +98,9 @@ fields_excel = [
     ['Примечание документа', 'DOC_REMARK', False, 'str', 73, 'str'],
     ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 74, 'str'],
     ['Родительское КС (для ЗУ)', 'PARENT', False, 'str', 75, 'str'],
-    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 76, 'int:5']
+    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 76, 'int:5'],
+    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 77, "str"],
+   ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 78, "str"],
 ]
 
 current_file = ''
@@ -106,7 +108,7 @@ previous_file = ''
 error_message = ''
 
 window = Tk()
-window.title('RA Excel Processing ver 0.3')
+window.title('RA Excel Processing ver 0.4')
 window.geometry('1140x595')
 window.resizable(False, False)
 path_image = resource_path2('favicon.png')
@@ -220,16 +222,16 @@ def run_instrument():
     else:
         round_coords = int(fill_round_entry.get())
     maska_file = maska_label_path.get()
-    for excel_file in os.listdir(df):
-        if excel_file[-5:] == '.xlsx':
+    for csv_file in os.listdir(df):
+        if csv_file[-4:] == '.csv':
             try:
                 AddressFiles(download_folder=df, final_folder=ff, output_format=output, check_coords=check_coords,
                              change_id_ate=id_ate, round_coords=round_coords, sk=sk_get,
-                             fields=fields_excel, maska_file=maska_file).processing_data(excel_file)
-                current_file = excel_file
+                             fields=fields_excel, maska_file=maska_file).processing_data(csv_file)
+                current_file = csv_file
             except Exception as error:
                 error_message = repr(error)
-                current_file = excel_file
+                current_file = csv_file
 
 
 def check_state(func):
