@@ -368,7 +368,7 @@ class AddressFiles(object):
         if dataframe.shape[0] <= 1048575:
             with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx',
                                 datetime_format='DD.MM.YYYY', engine='xlsxwriter', options={'strings_to_numbers': True}) as writter:
-                dataframe.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False, float_format='')
+                dataframe.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
 
             if self.fields[7][2]:
                 cad_nums = list(dataframe[self.fields[7][1]])
