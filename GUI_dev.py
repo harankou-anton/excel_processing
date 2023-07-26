@@ -109,8 +109,8 @@ previous_file = ''
 error_message = ''
 
 window = Tk()
-window.title('RA Excel Processing ver 0.4')
-window.geometry('1140x595')
+window.title('RA Excel Processing ver 0.5')
+window.geometry('1140x630')
 window.resizable(False, False)
 path_image = resource_path2('favicon.png')
 photo = PhotoImage(file=path_image)
@@ -149,6 +149,13 @@ def sk_button(*args):
     else:
         wgs_btn.config(state='disable')
         sk_btn.config(state='disable')
+
+
+def float_format(*args):
+    if output_formats.current() == 1:
+        decimal_format.config(state='normal')
+    else:
+        decimal_format.config(state='disable')
 
 
 def disable_enable_button(*args):
@@ -218,6 +225,9 @@ def run_instrument():
     check_coords = checkbox_ate.get()
     id_ate = checkbox_id_ate.get()
     sk_get = def_variable.get()
+    dec = '.'
+    if decimal_format.get() == 'Запятая':
+        dec = ','
     if checkbox_round_coords.get() is False:
         round_coords = False
     else:
@@ -227,7 +237,7 @@ def run_instrument():
         if csv_file[-4:] == '.csv':
             try:
                 AddressFiles(download_folder=df, final_folder=ff, output_format=output, check_coords=check_coords,
-                             change_id_ate=id_ate, round_coords=round_coords, sk=sk_get,
+                             change_id_ate=id_ate, round_coords=round_coords, sk=sk_get, decimal_format=dec,
                              fields=fields_excel, maska_file=maska_file).processing_data(csv_file)
                 current_file = csv_file
             except Exception as error:
@@ -361,7 +371,8 @@ output_formats = Combobox(window, width=6, font=("Georgia", 8))
 output_formats['values'] = ('Excel', 'CSV', 'Shape')
 output_formats.current(0)
 output_formats.grid(column=1, row=2, pady=2)
-output_formats.bind("<<ComboboxSelected>>", sk_button)
+output_formats.bind("<<ComboboxSelected>>", float_format, add='+')
+output_formats.bind("<<ComboboxSelected>>", sk_button, add='+')
 
 
 # Система координат
@@ -416,7 +427,7 @@ fill_round_entry.grid(column=2, row=6, sticky=W, pady=2)
 fields_settings_label = Label(window, text='Настройка полей', font=("Georgia", 11), width=15)
 fields_settings_label.grid(column=3, row=0, sticky=W)
 
-fields_table_frame = Frame(window, width=670, height=550, bg='white', bd=5, relief='ridge')
+fields_table_frame = Frame(window, width=670, height=590, bg='white', bd=5, relief='ridge')
 fields_table_frame.grid(column=3, row=1, columnspan=5, rowspan=70, padx=5)
 fields_table_frame.grid_propagate(False)
 
@@ -452,17 +463,25 @@ save_fields_config.grid(row=0, column=4)
 save_fields_config = Button(window, text="Загрузить настройки полей", command=upload_pattern, font=("Georgia", 8))
 save_fields_config.grid(row=0, column=5)
 
+# Разделитель дробной части
+decimal_format_label = Label(window, text='Разделитель дробной\nчасти (для csv файлов)', font=("Georgia", 11), width=22)
+decimal_format_label.grid(column=0, row=7, sticky=W)
+decimal_format = Combobox(window, width=6, font=("Georgia", 8), state='disable')
+decimal_format['values'] = ('Точка', 'Запятая')
+decimal_format.current(0)
+decimal_format.grid(column=1, row=7, pady=2)
+
 # Кнопка запуска обработки
 start_button = Button(window, text="Старт", width=50, pady=3,
                       command=start_button_func, font=("Georgia", 9), bg='#54C571')
-start_button.grid(row=7, column=0, columnspan=3)
+start_button.grid(row=8, column=0, columnspan=3)
 
 # Окно статуса выполнения
 logger_window = Text(window, width=50, height=21, borderwidth=3)
-logger_window.grid(row=8, column=0, columnspan=3, pady=2)
+logger_window.grid(row=9, column=0, columnspan=3, pady=2)
 
 
-my_canvas.config(width=640, height=535)
+my_canvas.config(width=640, height=575)
 my_canvas.config(scrollregion=my_canvas.bbox("all"))
 
 window.mainloop()
