@@ -77,31 +77,37 @@ fields_excel = [
     ['Номер КС', 'NUM_HOUSE', False, 'int64', 53, 'int:5', True],
     ['Корпус КС', 'NUM_CORP', False, 'object', 54, 'int32', True],
     ['Индекс КС', 'IND_HOUSE', False, 'str', 55, 'str:4', False],
-    ['Блок', 'BLOCK', False, 'object', 77, 'int:5', True],
-    ['Идентификатор специальной отметки', 'ID_OTM', False, 'object', 56, 'int:5', True],
-    ['Специальная отметка', 'OTMETKA', False, 'str', 78, 'str:20', False],
-    ['Номер ИП', 'NUM_ROOM', False, 'object', 57, 'int:5', True],
-    ['Индекс ИП', 'IND_ROOM', False, 'str', 58, 'str:4', False],
-    ['Код назначения недвижимого имущества', 'CODE_PURP', False, 'object', 59, 'int:5', True],
-    ['Назначение недвижимого имущества', 'PURPOSE', False, 'str', 60, 'str:9', False],
-    ['Номер зоны (СК 1963)', 'ZONE_NUMB', False, 'object', 61, 'int:5', True],
-    ['Координата X (СК 1963)', 'X_63', False, 'object', 62, 'float', True],
-    ['Координата Y (СК 1963)', 'Y_63', False, 'object', 63, 'float', True],
-    ['Широта (WGS 1984)', 'XCOORD', False, 'object', 64, 'float', True],
-    ['Долгота (WGS 1984)', 'YCOORD', False, 'object', 65, 'float', True],
-    ['Координата X (СК 1942)', 'XCK42', False, 'object', 66, 'float', True],
-    ['Координата Y (СК 1942)', 'YCK42', False, 'object', 67, 'float', True],
-    ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'object', 68, 'date', False],
-    ['Дата упразднения', 'DATE_ANNUL', False, 'str', 69, 'date', False],
-    ['Орган. док', 'DOC_STATE', False, 'str', 70, 'str', False],
-    ['Дата документа', 'DOC_DATE', False, 'str', 71, 'date', False],
-    ['Номер документа', 'DOC_NUM', False, 'str', 72, 'str', False],
-    ['Примечание документа', 'DOC_REMARK', False, 'str', 73, 'str', False],
-    ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 74, 'str', False],
-    ['Родительское КС (для ЗУ)', 'PARENT', False, 'str', 75, 'str', False],
-    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 76, 'int:5', True],
-    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 77, "str", False],
-   ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 78, "str", False],
+    ['Блок', 'BLOCK', False, 'object', 56, 'int:5'],
+    ['Идентификатор специальной отметки', 'ID_OTM', False, 'object', 57, 'int:5'],
+    ['Специальная отметка', 'OTMETKA', False, 'str', 58, 'str:20'],
+    ['Номер ИП', 'NUM_ROOM', False, 'object', 59, 'int:5'],
+    ['Индекс ИП', 'IND_ROOM', False, 'str', 60, 'str:4'],
+    ['Код назначения недвижимого имущества', 'CODE_PURP', False, 'object', 61, 'int:5'],
+    ['Назначение недвижимого имущества', 'PURPOSE', False, 'str', 62, 'str:9'],
+    ['Номер зоны (СК 1963)', 'ZONE_NUMB', False, 'object', 63, 'int:5'],
+    ['Координата X (СК 1963)', 'X_63', False, 'object', 64, 'float'],
+    ['Координата Y (СК 1963)', 'Y_63', False, 'object', 65, 'float'],
+    ['Широта (WGS 1984)', 'XCOORD', False, 'object', 66, 'float'],
+    ['Долгота (WGS 1984)', 'YCOORD', False, 'object', 67, 'float'],
+    ['Координата X (СК 1942)', 'XCK42', False, 'object', 68, 'float'],
+    ['Координата Y (СК 1942)', 'YCK42', False, 'object', 69, 'float'],
+    ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'object', 70, 'date'],
+    ['Дата упразднения', 'DATE_ANNUL', False, 'str', 71, 'date'],
+    ['Орган. док', 'DOC_STATE', False, 'str', 72, 'str'],
+    ['Дата документа', 'DOC_DATE', False, 'str', 73, 'date'],
+    ['Номер документа', 'DOC_NUM', False, 'str', 74, 'str'],
+    ['Примечание документа', 'DOC_REMARK', False, 'str', 75, 'str'],
+    ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 76, 'str'],
+    ['Родительское КС (для ЗУ)', 'PARENT', False, 'str', 77, 'str'],
+    ['Индекс корпуса (для гаража)', 'IND_BY_CORP', False, 'object', 78, 'int32'],
+    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 79, 'int:5'],
+    ['Количество ИП', 'COUNT_IP', False, "object", 80, "int32"],
+    ['Количество ММ', 'COUNT_MM', False, "object", 81, "int32"],
+    ['Количество ИП_ММ', 'COUNT_IP_MM', False, "object", 82, "int32"],
+    ['Уникальный идентификатор наименования ЭВА', 'NAMEUID', False, "object", 83, "int32"],
+    ['Родительское КС (для ИП)', 'PARENT_KS', False, "object", 84, "int32"],
+    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 85, "str"],
+    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 86, "str"],
 ]
 
 current_file = ''
@@ -109,8 +115,8 @@ previous_file = ''
 error_message = ''
 
 window = Tk()
-window.title('RA Excel Processing ver 0.5')
-window.geometry('1140x630')
+window.title('RA Excel Processing ver 0.6')
+window.geometry('1140x670')
 window.resizable(False, False)
 path_image = resource_path2('favicon.png')
 photo = PhotoImage(file=path_image)
@@ -197,16 +203,26 @@ def upload_pattern():
     if upload_file != '':
         with open(upload_file, 'r', encoding='utf-8') as reader:
             get_fields_names = json.loads(reader.read())
+            for key in dict_checkboxes.keys():
+                dict_checkboxes[key].set(False)
             for row in range(len(get_fields_names)):
-                list_checkboxes[row].set(get_fields_names[row][2])
+                dict_checkboxes[get_fields_names[row][0]].set(get_fields_names[row][2])
+
+            dict_keys = [key for key in dict_checkboxes.keys()]
+            list_checkboxes = [value for value in dict_checkboxes.values()]
+            for row in range(len(list_checkboxes)):
+                for el in range(len(get_fields_names)):
+                    if dict_keys[row] in get_fields_names[el]:
+                        template_position = el
+                        break
                 if list_checkboxes[row].get() is True:
                     inner_frame.grid_slaves(row, 2)[0].config(state=NORMAL)
                     inner_frame.grid_slaves(row, 3)[0].config(state=NORMAL)
                     inner_frame.grid_slaves(row, 2)[0].delete(0, END)
-                    inner_frame.grid_slaves(row, 2)[0].insert(0, get_fields_names[row][1])
-                    if get_fields_names[row][4] != 0:
+                    inner_frame.grid_slaves(row, 2)[0].insert(0, get_fields_names[template_position][1])
+                    if get_fields_names[template_position][4] != 0:
                         inner_frame.grid_slaves(row, 3)[0].delete(0, END)
-                        inner_frame.grid_slaves(row, 3)[0].insert(0, get_fields_names[row][4])
+                        inner_frame.grid_slaves(row, 3)[0].insert(0, get_fields_names[template_position][4])
                     else:
                         inner_frame.grid_slaves(row, 3)[0].delete(0, END)
                 else:
@@ -226,6 +242,7 @@ def run_instrument():
     id_ate = checkbox_id_ate.get()
     sk_get = def_variable.get()
     dec = '.'
+    floor_for_ip = checkbox_floor_for_ip.get()
     if decimal_format.get() == 'Запятая':
         dec = ','
     if checkbox_round_coords.get() is False:
@@ -238,7 +255,7 @@ def run_instrument():
             try:
                 AddressFiles(download_folder=df, final_folder=ff, output_format=output, check_coords=check_coords,
                              change_id_ate=id_ate, round_coords=round_coords, sk=sk_get, decimal_format=dec,
-                             fields=fields_excel, maska_file=maska_file).processing_data(csv_file)
+                             fields=fields_excel, maska_file=maska_file, floor_for_ip=floor_for_ip).processing_data(csv_file)
                 current_file = csv_file
             except Exception as error:
                 error_message = repr(error)
@@ -427,7 +444,7 @@ fill_round_entry.grid(column=2, row=6, sticky=W, pady=2)
 fields_settings_label = Label(window, text='Настройка полей', font=("Georgia", 11), width=15)
 fields_settings_label.grid(column=3, row=0, sticky=W)
 
-fields_table_frame = Frame(window, width=670, height=590, bg='white', bd=5, relief='ridge')
+fields_table_frame = Frame(window, width=670, height=625, bg='white', bd=5, relief='ridge')
 fields_table_frame.grid(column=3, row=1, columnspan=5, rowspan=70, padx=5)
 fields_table_frame.grid_propagate(False)
 
@@ -443,14 +460,18 @@ my_canvas.create_window((0, 0), window=inner_frame, anchor='nw')
 
 inner_digits_validation = inner_frame.register(validate)
 
-list_checkboxes = []  # ХРАНЯТСЯ ЗНАЧЕНИЯ ЧЕКБОКСОВ !!! ВАЖНО ДЛЯ КОРРЕКТНОГО ПРИМЕНЕНИЯ К НУЖНОЙ СТРОКЕ
+dict_checkboxes = {}  # ХРАНЯТСЯ ЗНАЧЕНИЯ ЧЕКБОКСОВ !!! ВАЖНО ДЛЯ КОРРЕКТНОГО ПРИМЕНЕНИЯ К НУЖНОЙ СТРОКЕ
+list_checkboxes = None
 for n, items in enumerate(fields_excel):
 
-    list_checkboxes.append(BooleanVar(value=items[2]))
+    dict_checkboxes[items[0]] = BooleanVar(value=items[2])
+    list_checkboxes = [value for value in dict_checkboxes.values()]
+for n in range(len(list_checkboxes)):
     Checkbutton(inner_frame, variable=list_checkboxes[n], command=table_disable_enable).grid(row=n, column=0,
                                                                                              sticky='news')
-    Label(inner_frame, text=items[0], width=51, anchor='w', bd=0.5, relief='solid').grid(row=n, column=1, sticky='w')
-    default_col3 = StringVar(inner_frame, items[1])
+    Label(inner_frame, text=fields_excel[n][0], width=51, anchor='w', bd=0.5, relief='solid').grid(row=n, column=1,
+                                                                                                   sticky='w')
+    default_col3 = StringVar(inner_frame, fields_excel[n][1])
     Entry(inner_frame, width=25, textvariable=default_col3, state=DISABLED).grid(row=n, column=2, sticky='w', padx=10)
     Entry(inner_frame, width=10, validate='key', validatecommand=(inner_digits_validation, '%S'), state=DISABLED)\
         .grid(row=n, column=3, sticky='e', padx=7)
@@ -471,17 +492,25 @@ decimal_format['values'] = ('Точка', 'Запятая')
 decimal_format.current(0)
 decimal_format.grid(column=1, row=7, pady=2)
 
+# Этаж для ИП
+checkbox_floor_for_ip_label = Label(window, text='Значение этажа только\nдля ИП', font=("Georgia", 11), width=22)
+checkbox_floor_for_ip_label.grid(column=0, row=8, sticky=W)
+checkbox_floor_for_ip = BooleanVar()
+checkbox_floor_for_ip.set(False)
+checkbox_floor_for_ip_button = Checkbutton(window, variable=checkbox_floor_for_ip)
+checkbox_floor_for_ip_button.grid(column=1, row=8, pady=2)
+
 # Кнопка запуска обработки
 start_button = Button(window, text="Старт", width=50, pady=3,
                       command=start_button_func, font=("Georgia", 9), bg='#54C571')
-start_button.grid(row=8, column=0, columnspan=3)
+start_button.grid(row=9, column=0, columnspan=3)
 
 # Окно статуса выполнения
 logger_window = Text(window, width=50, height=21, borderwidth=3)
-logger_window.grid(row=9, column=0, columnspan=3, pady=2)
+logger_window.grid(row=10, column=0, columnspan=3, pady=2)
 
 
-my_canvas.config(width=640, height=575)
+my_canvas.config(width=640, height=610)
 my_canvas.config(scrollregion=my_canvas.bbox("all"))
 
 window.mainloop()

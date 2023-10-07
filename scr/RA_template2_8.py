@@ -4,6 +4,94 @@ import geopandas as gpd
 import openpyxl
 import csv
 
+fields_excel = [['Полный адрес', 'FULL_ADR', True, 'str', 1, 'str'],
+    ['Уникальный идентификатор адреса', 'ADR_NUM', True, 'int64', 2, 'float'],
+    ['Код состояния адреса', 'CODE_STATUS', True, 'int64', 3, 'int:5'],
+    ['Состояние адреса', 'ADR_STATUS', True, 'str', 4, 'str:140'],
+    ['Код вида объекта недвижимого имущества', 'PROP_TYPE', True, 'int64', 5, 'int:5'],
+    ['Количество подъездов (подъезд)', 'NUM_PORCH', True, 'object', 6, 'int32'],
+    ['Количество этажей (этаж)', 'NUM_FLOOR', True, 'object', 7, 'str:20'],
+    ['Инвентарный (кадастровый) номер', 'INVNUMBER', True, 'str', 8, 'str:18'],
+    ['Почтовый индекс', 'POSTINDEX', True, 'object', 9, 'int32'],
+    ['Дополнительные сведения', 'REMARK', True, 'str', 10, 'str'],
+    ['Дата последнего редактирования адреса', 'DATE_REG', True, 'object', 11, 'date'],
+    ['Код вида работ', 'ID_SPEC', True, 'object', 12, 'int:5'],
+    ['Вид работ', 'GROUND', True, 'str', 13, 'str:100'],
+    ['Код типа документа', 'CODE_DOC', False, 'object', 14, 'int:5'],
+    ['Тип документа', 'TYPE_DOC', False, 'str', 15, 'str'],
+    ['ФИО специалиста по адресации', 'FIO', False, 'str', 16, 'str'],
+    ['Код организации специалиста по адресации', 'CODE_ORG', False, 'Int64', 17, 'int:5'],
+    ['Наименование организации специалиста по адресации', 'ORG', False, 'str', 18, 'str:160'],
+    ['Идентификатор специалиста по адресации', 'CODE_FIO', False, 'object', 19, 'int32'],
+    ['Уникальный идентификатор записи об адресе', 'ID_ADR', True, 'object', 20, 'float'],
+    ['Код актуальности адреса', 'CODE_ACTUAL', True, 'int64', 21, 'int:5'],
+    ['Актуальность адреса объекта недвижимого имущества', 'ACTUAL', True, 'str', 22, 'str:15'],
+    ['Вид объекта недвижимого имущества', 'IMM_TYPE', True, 'str', 23, 'str:70'],
+    ['Код области', 'UIDREGION', True, 'object', 24, 'int:5'],
+    ['Наименование области', 'NAMEREGION', True, 'str', 25, 'str:15'],
+    ['Наименование области на белорусском языке', 'REGIONBEL', True, 'str', 26, 'str:15'],
+    ['Код района', 'UIDDISTR', True, 'object', 27, 'int:5'],
+    ['Наименование района', 'NAMEDISTR', True, 'str', 28, 'str:20'],
+    ['Наименование района на белорусском языке', 'DISTRBEL', True, 'str', 29, 'str:20'],
+    ['Идентификатор сельсовета', 'UIDSS', True, 'object', 30, 'int32'],
+    ['Наименование сельсовета', 'NAMESS', True, 'str', 31, 'str:25'],
+    ['Наименование сельсовета на белорусском языке', 'SSBEL', True, 'str', 32, 'str:25'],
+    ['Код СОАТО АТЕ и ТЕ', 'SOATO', True, 'object', 33, 'str:10'],
+    ['Уникальный идентификатор АТЕ и ТЕ', 'ID_ATE', True, 'object', 34, 'int32'],
+    ['Актуальность кода АТЕ и ТЕ', 'ATE_ACT', True, 'int64', 35, 'int:5'],
+    ['Актуальность АТЕ и ТЕ', 'ATE_ACTUAL', True, 'str', 36, 'str:15'],
+    ['Код категории населенного пункта', 'CATEGORY', True, 'object', 37, 'int:5'],
+    ['Полное наименование категории населенного пункта', 'NAME', True, 'str', 38, 'str:55'],
+    ['Краткое наименование категории населенного пункта', 'SHORTNAME', True, 'str', 39, 'str:6'],
+    ['Наименование населенного пункта на русском языке', 'NAMEOBJECT', True, 'str', 40, 'str:110'],
+    ['Наименование населенного пункта на белорусском языке', 'NAMEOBJBEL', True, 'str', 41, 'str:100'],
+    ['Уникальный идентификатор ЭВА', 'ID_EVA', True, 'object', 42, 'int32'],
+    ['Идентификатор актуальности ЭВА', 'EVA_ACT', True, 'object', 43, 'int:5'],
+    ['Актуальность ЭВА', 'EVA_ACTUAL', True, 'str', 44, 'str:15'],
+    ['Код вида ЭВА', 'ELEMENTTYPE', True, 'object', 45, 'int:5'],
+    ['Наименование вида ЭВА на русском языке', 'ELTYPENAME', True, 'str', 46, 'str:60'],
+    ['Наименование вида ЭВА на белорусском языке', 'ELTYPENAMEBEL', True, 'str', 47, 'str:60'],
+    ['Краткое наименование вида ЭВА на русском языке', 'SHORTELTYPE', True, 'str', 48, 'str:7'],
+    ['Краткое наименование вида ЭВА на белорусском языке', 'ELTTYPESHBEL', True, 'str', 49, 'str:7'],
+    ['Наименование ЭВА на русском языке', 'EVA_NAME', True, 'str', 50, 'str:170'],
+    ['Наименование ЭВА на белорусском языке', 'ELNAMEBEL', True, 'str', 51, 'str:170'],
+    ['Километр автодороги', 'KM', True, 'object', 52, 'int:5'],
+    ['Номер КС', 'NUM_HOUSE', True, 'int64', 53, 'int:5'],
+    ['Корпус КС', 'NUM_CORP', True, 'object', 54, 'int32'],
+    ['Индекс КС', 'IND_HOUSE', True, 'str', 55, 'str:4'],
+    ['Блок', 'BLOCK', True, 'object', 56, 'int:5'],
+    ['Идентификатор специальной отметки', 'ID_OTM', True, 'object', 57, 'int:5'],
+    ['Специальная отметка', 'OTMETKA', True, 'str', 58, 'str:20'],
+    ['Номер ИП', 'NUM_ROOM', True, 'object', 59, 'int:5'],
+    ['Индекс ИП', 'IND_ROOM', True, 'str', 60, 'str:4'],
+    ['Код назначения недвижимого имущества', 'CODE_PURP', True, 'object', 61, 'int:5'],
+    ['Назначение недвижимого имущества', 'PURPOSE', True, 'str', 62, 'str:9'],
+    ['Номер зоны (СК 1963)', 'ZONE_NUMB', True, 'object', 63, 'int:5'],
+    ['Координата X (СК 1963)', 'X_63', True, 'object', 64, 'float'],
+    ['Координата Y (СК 1963)', 'Y_63', True, 'object', 65, 'float'],
+    ['Широта (WGS 1984)', 'XCOORD', True, 'object', 66, 'float'],
+    ['Долгота (WGS 1984)', 'YCOORD', True, 'object', 67, 'float'],
+    ['Координата X (СК 1942)', 'XCK42', False, 'object', 68, 'float'],
+    ['Координата Y (СК 1942)', 'YCK42', False, 'object', 69, 'float'],
+    ['Дата регистрации создания адреса', 'DATE_CREATE', True, 'object', 70, 'date'],
+    ['Дата упразднения', 'DATE_ANNUL', True, 'str', 71, 'date'],
+    ['Орган. док', 'DOC_STATE', False, 'str', 72, 'str'],
+    ['Дата документа', 'DOC_DATE', False, 'str', 73, 'date'],
+    ['Номер документа', 'DOC_NUM', False, 'str', 74, 'str'],
+    ['Примечание документа', 'DOC_REMARK', False, 'str', 75, 'str'],
+    ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 76, 'str'],
+    ['Родительское КС (для ЗУ)', 'PARENT', True, 'str', 77, 'str'],
+    ['Индекс корпуса (для гаража)', 'IND_BY_CORP', True, 'object', 78, 'int32'],
+    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 79, 'int:5'],
+    ['Количество ИП', 'COUNT_IP', True, "object", 80, "int32"],
+    ['Количество ММ', 'COUNT_MM', True, "object", 81, "int32"],
+    ['Количество ИП_ММ', 'COUNT_IP_MM', True, "object", 82, "int32"],
+    ['Уникальный идентификатор наименования ЭВА', 'NAMEUID', True, "object", 83, "int32"],
+    ['Родительское КС (для ИП)', 'PARENT_KS', True, "object", 84, "int32"],
+    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", True, "object", 85, "str"],
+    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", True, "object", 86, "str"],
+
+]
 """
 Настройка полей для обработки и формирования конечных файлов (описаны все доступные для выгрузки поля)
 1 - название поля в выгруженном эксель файле из Реестра Адресов - !!!НЕ ИЗМЕНЯТЬ
@@ -13,92 +101,11 @@ import csv
 5 - порядок полей в итоговом файле
 """
 
-fields_excel = [['Полный адрес', 'FULL_ADR', False, 'str', 1, 'str'],
-    ['Уникальный идентификатор адреса', 'ADR_NUM', False, 'int64', 2, 'float'],
-    ['Код состояния адреса', 'CODE_STATUS', False, 'int64', 3, 'int:5'],
-    ['Состояние адреса', 'ADR_STATUS', False, 'str', 4, 'str:140'],
-    ['Код вида объекта недвижимого имущества', 'PROP_TYPE', False, 'int64', 5, 'int:5'],
-    ['Количество подъездов (подъезд)', 'NUM_PORCH', False, 'object', 6, 'int32'],
-    ['Количество этажей (этаж)', 'NUM_FLOOR', False, 'object', 7, 'str:20'],
-    ['Инвентарный (кадастровый) номер', 'INVNUMBER', False, 'str', 8, 'str:18'],
-    ['Почтовый индекс', 'POSTINDEX', False, 'object', 9, 'int32'],
-    ['Дополнительные сведения', 'REMARK', False, 'str', 10, 'str'],
-    ['Дата последнего редактирования адреса', 'DATE_REG', False, 'object', 11, 'date'],
-    ['Код вида работ', 'ID_SPEC', False, 'object', 12, 'int:5'],
-    ['Вид работ', 'GROUND', False, 'str', 13, 'str:100'],
-    ['Код типа документа', 'CODE_DOC', False, 'object', 14, 'int:5'],
-    ['Тип документа', 'TYPE_DOC', False, 'str', 15, 'str'],
-    ['ФИО специалиста по адресации', 'FIO', False, 'str', 16, 'str'],
-    ['Код организации специалиста по адресации', 'CODE_ORG', False, 'Int64', 17, 'int:5'],
-    ['Наименование организации специалиста по адресации', 'ORG', False, 'str', 18, 'str:160'],
-    ['Идентификатор специалиста по адресации', 'CODE_FIO', False, 'object', 19, 'int32'],
-    ['Уникальный идентификатор записи об адресе', 'ID_ADR', False, 'object', 20, 'float'],
-    ['Код актуальности адреса', 'CODE_ACTUAL', False, 'int64', 21, 'int:5'],
-    ['Актуальность адреса объекта недвижимого имущества', 'ACTUAL', False, 'str', 22, 'str:15'],
-    ['Вид объекта недвижимого имущества', 'IMM_TYPE', False, 'str', 23, 'str:70'],
-    ['Код области', 'UIDREGION', False, 'object', 24, 'int:5'],
-    ['Наименование области', 'NAMEREGION', False, 'str', 25, 'str:15'],
-    ['Наименование области на белорусском языке', 'REGIONBEL', False, 'str', 26, 'str:15'],
-    ['Код района', 'UIDDISTR', False, 'object', 27, 'int:5'],
-    ['Наименование района', 'NAMEDISTR', False, 'str', 28, 'str:20'],
-    ['Наименование района на белорусском языке', 'DISTRBEL', False, 'str', 29, 'str:20'],
-    ['Идентификатор сельсовета', 'UIDSS', False, 'object', 30, 'int32'],
-    ['Наименование сельсовета', 'NAMESS', False, 'str', 31, 'str:25'],
-    ['Наименование сельсовета на белорусском языке', 'SSBEL', False, 'str', 32, 'str:25'],
-    ['Код СОАТО АТЕ и ТЕ', 'SOATO', False, 'object', 33, 'str:10'],
-    ['Уникальный идентификатор АТЕ и ТЕ', 'ID_ATE', False, 'object', 34, 'int32'],
-    ['Актуальность кода АТЕ и ТЕ', 'ATE_ACT', False, 'int64', 35, 'int:5'],
-    ['Актуальность АТЕ и ТЕ', 'ATE_ACTUAL', False, 'str', 36, 'str:15'],
-    ['Код категории населенного пункта', 'CATEGORY', False, 'object', 37, 'int:5'],
-    ['Полное наименование категории населенного пункта', 'NAME', False, 'str', 38, 'str:55'],
-    ['Краткое наименование категории населенного пункта', 'SHORTNAME', False, 'str', 39, 'str:6'],
-    ['Наименование населенного пункта на русском языке', 'NAMEOBJECT', False, 'str', 40, 'str:110'],
-    ['Наименование населенного пункта на белорусском языке', 'NAMEOBJBEL', False, 'str', 41, 'str:100'],
-    ['Уникальный идентификатор ЭВА', 'ID_EVA', False, 'object', 42, 'int32'],
-    ['Идентификатор актуальности ЭВА', 'EVA_ACT', False, 'object', 43, 'int:5'],
-    ['Актуальность ЭВА', 'EVA_ACTUAL', False, 'str', 44, 'str:15'],
-    ['Код вида ЭВА', 'ELEMENTTYPE', False, 'object', 45, 'int:5'],
-    ['Наименование вида ЭВА на русском языке', 'ELTYPENAME', False, 'str', 46, 'str:60'],
-    ['Наименование вида ЭВА на белорусском языке', 'ELTYPENAMEBEL', False, 'str', 47, 'str:60'],
-    ['Краткое наименование вида ЭВА на русском языке', 'SHORTELTYPE', False, 'str', 48, 'str:7'],
-    ['Краткое наименование вида ЭВА на белорусском языке', 'ELTTYPESHBEL', False, 'str', 49, 'str:7'],
-    ['Наименование ЭВА на русском языке', 'EVA_NAME', False, 'str', 50, 'str:170'],
-    ['Наименование ЭВА на белорусском языке', 'ELNAMEBEL', False, 'str', 51, 'str:170'],
-    ['Километр автодороги', 'KM', False, 'object', 52, 'int:5'],
-    ['Номер КС', 'NUM_HOUSE', False, 'int64', 53, 'int:5'],
-    ['Корпус КС', 'NUM_CORP', False, 'object', 54, 'int32'],
-    ['Индекс КС', 'IND_HOUSE', False, 'str', 55, 'str:4'],
-    ['Блок', 'BLOCK', False, 'object', 77, 'int:5'],
-    ['Идентификатор специальной отметки', 'ID_OTM', False, 'object', 56, 'int:5'],
-    ['Специальная отметка', 'OTMETKA', False, 'str', 78, 'str:20'],
-    ['Номер ИП', 'NUM_ROOM', False, 'object', 57, 'int:5'],
-    ['Индекс ИП', 'IND_ROOM', False, 'str', 58, 'str:4'],
-    ['Код назначения недвижимого имущества', 'CODE_PURP', False, 'object', 59, 'int:5'],
-    ['Назначение недвижимого имущества', 'PURPOSE', False, 'str', 60, 'str:9'],
-    ['Номер зоны (СК 1963)', 'ZONE_NUMB', False, 'object', 61, 'int:5'],
-    ['Координата X (СК 1963)', 'X_63', False, 'object', 62, 'float'],
-    ['Координата Y (СК 1963)', 'Y_63', False, 'object', 63, 'float'],
-    ['Широта (WGS 1984)', 'XCOORD', False, 'object', 64, 'float'],
-    ['Долгота (WGS 1984)', 'YCOORD', False, 'object', 65, 'float'],
-    ['Координата X (СК 1942)', 'XCK42', False, 'object', 66, 'float'],
-    ['Координата Y (СК 1942)', 'YCK42', False, 'object', 67, 'float'],
-    ['Дата регистрации создания адреса', 'DATE_CREATE', False, 'object', 68, 'date'],
-    ['Дата упразднения', 'DATE_ANNUL', False, 'str', 69, 'date'],
-    ['Орган. док', 'DOC_STATE', False, 'str', 70, 'str'],
-    ['Дата документа', 'DOC_DATE', False, 'str', 71, 'date'],
-    ['Номер документа', 'DOC_NUM', False, 'str', 72, 'str'],
-    ['Примечание документа', 'DOC_REMARK', False, 'str', 73, 'str'],
-    ['Должность специалиста по адресации', 'POSITION_SPEC', False, 'str', 74, 'str'],
-    ['Родительское КС (для ЗУ)', 'PARENT', False, 'str', 75, 'str'],
-    ['ID подтипа работ в модуле "Контроль целостности"', 'ID_KC', False, 'object', 76, 'int:5'],
-    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 77, "str"],
-    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 78, "str"],
-]
 
 
 class AddressFiles(object):
     def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate,
-                 round_coords, fields, sk=1, maska_file="", decimal_format='.'):
+                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False):
         self.download_folder = download_folder
         self.final_folder = final_folder
         self.maska_file = maska_file
@@ -109,6 +116,7 @@ class AddressFiles(object):
         self.fields = fields
         self.sk = sk
         self.decimal_format = decimal_format
+        self.floor_for_ip = floor_for_ip
 
     def get_fields(self):
         """
@@ -125,7 +133,7 @@ class AddressFiles(object):
         final_order = [x[1] for x in temp]
         for field in range(len(final_order))[::-1]:
             if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
-                    final_order[field] == fields_excel[78][1] or final_order[field] == fields_excel[79][1]:
+                    final_order[field] == fields_excel[84][1] or final_order[field] == fields_excel[85][1]:
                 final_order.pop(field)
         return header, types, final_order, types_shp
 
@@ -2016,6 +2024,15 @@ class AddressFiles(object):
             lambda x: x[self.fields[33][1]] if x[self.fields[39][1]] != '' else None, axis=1)
         return dataframe
 
+    def write_floor_for_ip(self, dataframe):
+        """
+        Функция оставляет значения поля "Количество этажей(этаж)" только для изолированных помещений
+        """
+        dataframe[self.fields[6][1]] = dataframe.apply(
+            lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
+        return dataframe
+
+
     def save_to_shp(self, dataframe, name):
         """
         Функция сохраняет данные в формате шейп файла
@@ -2062,7 +2079,7 @@ class AddressFiles(object):
             if self.fields[7][2]:
                 cad_nums = list(dataframe[self.fields[7][1]])
                 self.write_cadnums_to_excel(
-                    excel=os.path.join(self.final_folder, name[:-4]) + '.xlsx', 
+                    excel=os.path.join(self.final_folder, name[:-4]) + '.xlsx',
                     list_cadnums=cad_nums)
 
         else:
@@ -2075,7 +2092,7 @@ class AddressFiles(object):
                 if self.fields[7][2]:
                     cad_nums = list(dataframe[self.fields[7][1]])
                     self.write_cadnums_to_excel(
-                        excel=os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1), 
+                        excel=os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
                         list_cadnums=cad_nums)
 
     def write_cadnums_to_excel(self, excel, list_cadnums):
@@ -2130,11 +2147,11 @@ class AddressFiles(object):
         if self.fields[9][2]:
             df['full_block'] = df.apply(lambda x: 'блок ' + str(x[self.fields[55][1]]) if x[self.fields[55][1]] != ''
             else "", axis=1)
-            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[79][1]] if x[self.fields[79][1]] != ''
+            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[85][1]] if x[self.fields[85][1]] != ''
             else "", axis=1)
 
             df['full_remark'] = df[df.columns[[df.columns.get_loc('full_block'),
-                                               df.columns.get_loc(self.fields[78][1]),
+                                               df.columns.get_loc(self.fields[84][1]),
                                                df.columns.get_loc('settlement'),
                                                df.columns.get_loc(self.fields[9][1])]]].apply(
                lambda x: ', '.join(x[x!=''].astype(str)), axis=1
@@ -2145,6 +2162,8 @@ class AddressFiles(object):
             df[self.fields[23][1]] = df[self.fields[23][1]].apply(lambda x: "" if x == 5 else x)
         if self.fields[24][2]:
             df[self.fields[24][1]] = df[self.fields[24][1]].apply(lambda x: "" if x == 'Минск' else x)
+        if self.fields[6][2]:
+            df[self.fields[6][1]] = df[self.fields[6][1]].apply(lambda x: "" if x == 0 else x)
 
         if self.check_coords is True:
             df = self.do_check_coords(df)
@@ -2158,6 +2177,9 @@ class AddressFiles(object):
         if self.decimal_format == ',':
             self.change_decimal_sep(df)
 
+        if self.floor_for_ip is True:
+            self.write_floor_for_ip(df)
+
         if self.output_format == 1:
             self.save_to_excel(df, excel_file)
         elif self.output_format == 2:
@@ -2167,19 +2189,19 @@ class AddressFiles(object):
 
 
 def main():
-    AddressFiles(download_folder=r'D:\test\2_6\cut',  # Папка со скачанными эксель файлами
-                 final_folder=r'D:\test\2_6\готово',  # Папка для сохранения итоговых файлов
-                 maska_file=r'd:\my_scripts\maska\district_maska_84_1.shp',
+    AddressFiles(download_folder=r'D:\PycharmProjects\RA\test\input',  # Папка со скачанными эксель файлами
+                 final_folder=r'D:\PycharmProjects\RA\test\output',  # Папка для сохранения итоговых файлов
+                 maska_file=r'D:\PycharmProjects\RA\test\district_84_2023.shp',
                  # Файл с границами районов//городов областного подчинения для проверки координат (в файле обязательно поле "NAMEOBJECT" - наименование объекта)
-                 output_format=3,  # Формат сохранения итоговых файлов (1-excel, 2-csv, 3-shp)
+                 output_format=1,  # Формат сохранения итоговых файлов (1-excel, 2-csv, 3-shp)
                  check_coords=False,  # Проверка корректности координат (True - выполняется, False - не выполняется)
                  change_id_ate=False,
                  # Замена значения "Уникальный идентификатор АТЕ и ТЕ" на "Уникальный идентификатор населённого пункта" (True - выполняется, False - не выполняется)
-                 round_coords=5,
+                 round_coords=False,
                  # Округление координат (Цифра - количество знаков после запятой, функция выполняется; False - не выполняется)
-                 sk=2,  # Система координат для проверки координат и/или формирования шейпа(1 - WGS 84, 2-CK63)
+                 sk=1,  # Система координат для проверки координат и/или формирования шейпа(1 - WGS 84, 2-CK63)
                  fields=fields_excel)
-        # .processing_data('Россонский-2023-05-26-2998.csv')  # Ссылка на переменную с настроенными данными по полям
+        # .processing_data('Краснопольский-2023-10-03-4429.csv')  # Ссылка на переменную с настроенными данными по полям
 
 
 if __name__ == '__main__':
