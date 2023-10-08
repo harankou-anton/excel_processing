@@ -192,7 +192,17 @@ def update_fields_excel():
 
 def save_pattern():
     update_fields_excel()
-    json_dump = json.dumps(fields_excel, ensure_ascii=False)
+    main_options = {'output_format': output_formats.get(),
+                    'check_coords': checkbox_ate.get(),
+                    'sk': def_variable.get(),
+                    'id_ate': checkbox_id_ate.get(),
+                    'round_coords': checkbox_round_coords.get(),
+                    'round_coords_number': fill_round_entry.get(),
+                    'csv_delimeter': decimal_format.get(),
+                    'floor_for_ip': checkbox_floor_for_ip.get()
+                    }
+    options = {'fields': fields_excel[:], 'main_options': main_options}
+    json_dump = json.dumps(options, ensure_ascii=False)
     save_file = filedialog.asksaveasfilename(defaultextension='.json', filetypes=[("Json Files", '*.json')])
     with open(save_file, 'w', encoding='utf-8') as writter:
         writter.write(json_dump)
@@ -202,7 +212,15 @@ def upload_pattern():
     upload_file = filedialog.askopenfilename(defaultextension='.json', filetypes=[("Json Files", '*.json')])
     if upload_file != '':
         with open(upload_file, 'r', encoding='utf-8') as reader:
-            get_fields_names = json.loads(reader.read())
+            file_content = json.loads(reader.read())
+
+            get_main_options = {}
+            if type(file_content) == dict:
+                get_fields_names = file_content['fields']
+                get_main_options = file_content['main_options']
+            else:
+                get_fields_names = file_content
+
             for key in dict_checkboxes.keys():
                 dict_checkboxes[key].set(False)
             for row in range(len(get_fields_names)):
@@ -229,6 +247,19 @@ def upload_pattern():
                     inner_frame.grid_slaves(row, 3)[0].delete(0, END)
                     inner_frame.grid_slaves(row, 2)[0].config(state=DISABLED)
                     inner_frame.grid_slaves(row, 3)[0].config(state=DISABLED)
+
+                if get_main_options != {}:
+                    output_formats.set(get_main_options['output_format'])
+                    checkbox_ate.set(get_main_options['check_coords'])
+                    sk_button()
+                    float_format()
+                    def_variable.set(get_main_options['sk'])
+                    checkbox_id_ate.set(get_main_options['id_ate'])
+                    checkbox_round_coords.set(get_main_options['round_coords'])
+                    fill_round_entry.delete(0, END)
+                    fill_round_entry.insert(0, get_main_options['round_coords_number'])
+                    decimal_format.set(get_main_options['csv_delimeter'])
+                    checkbox_floor_for_ip.set(get_main_options['floor_for_ip'])
 
 
 def run_instrument():
