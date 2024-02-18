@@ -10,7 +10,7 @@ fields_excel = scr.default_values.fields_excel
 
 class AddressFiles(object):
     def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate,
-                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False):
+                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False, porch_for_ip=False):
         self.download_folder = download_folder
         self.final_folder = final_folder
         self.maska_file = maska_file
@@ -22,6 +22,7 @@ class AddressFiles(object):
         self.sk = sk
         self.decimal_format = decimal_format
         self.floor_for_ip = floor_for_ip
+        self.porch_for_ip = porch_for_ip
 
     def get_fields(self):
         """
@@ -38,7 +39,7 @@ class AddressFiles(object):
         final_order = [x[1] for x in temp]
         for field in range(len(final_order))[::-1]:
             if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
-                    final_order[field] == fields_excel[84][1] or final_order[field] == fields_excel[85][1]:
+                    final_order[field] == fields_excel[86][1] or final_order[field] == fields_excel[87][1]:
                 final_order.pop(field)
         return header, types, final_order, types_shp
 
@@ -142,6 +143,13 @@ class AddressFiles(object):
             lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
         return dataframe
 
+    def write_porch_for_ip(self, dataframe):
+        """
+        Функция оставляет значения поля "Количество подъездов (подъезд)" только для изолированных помещений
+        """
+        dataframe[self.fields[5][1]] = dataframe.apply(
+            lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
+        return dataframe
 
     def save_to_shp(self, dataframe, name):
         """
@@ -257,11 +265,11 @@ class AddressFiles(object):
         if self.fields[9][2]:
             df['full_block'] = df.apply(lambda x: 'блок ' + str(x[self.fields[55][1]]) if x[self.fields[55][1]] != ''
             else "", axis=1)
-            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[85][1]] if x[self.fields[85][1]] != ''
+            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[87][1]] if x[self.fields[87][1]] != ''
             else "", axis=1)
 
             df['full_remark'] = df[df.columns[[df.columns.get_loc('full_block'),
-                                               df.columns.get_loc(self.fields[84][1]),
+                                               df.columns.get_loc(self.fields[86][1]),
                                                df.columns.get_loc('settlement'),
                                                df.columns.get_loc(self.fields[9][1])]]].apply(
                lambda x: ', '.join(x[x!=''].astype(str)), axis=1
@@ -289,6 +297,9 @@ class AddressFiles(object):
 
         if self.floor_for_ip is True:
             self.write_floor_for_ip(df)
+
+        if self.porch_for_ip is True:
+            self.write_porch_for_ip(df)
 
         if self.output_format == 1:
             self.save_to_excel(df, excel_file)

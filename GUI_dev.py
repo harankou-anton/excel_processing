@@ -29,8 +29,8 @@ previous_file = ''
 error_message = ''
 
 window = Tk()
-window.title('RA Excel Processing ver 0.6')
-window.geometry('1140x670')
+window.title('RA Excel Processing ver 0.7')
+window.geometry('1250x700')
 window.resizable(False, False)
 path_image = resource_path2('favicon.png')
 photo = PhotoImage(file=path_image)
@@ -113,7 +113,8 @@ def save_pattern():
                     'round_coords': checkbox_round_coords.get(),
                     'round_coords_number': fill_round_entry.get(),
                     'csv_delimeter': decimal_format.get(),
-                    'floor_for_ip': checkbox_floor_for_ip.get()
+                    'floor_for_ip': checkbox_floor_for_ip.get(),
+                    'porch_for_ip': checkbox_porch_for_ip.get()
                     }
     options = {'fields': fields_excel[:], 'main_options': main_options}
     json_dump = json.dumps(options, ensure_ascii=False)
@@ -174,6 +175,8 @@ def upload_pattern():
                     fill_round_entry.insert(0, get_main_options['round_coords_number'])
                     decimal_format.set(get_main_options['csv_delimeter'])
                     checkbox_floor_for_ip.set(get_main_options['floor_for_ip'])
+                    if get_main_options.get('porch_for_ip'):
+                        checkbox_porch_for_ip.set(get_main_options['porch_for_ip'])
 
 
 def run_instrument():
@@ -188,6 +191,7 @@ def run_instrument():
     sk_get = def_variable.get()
     dec = '.'
     floor_for_ip = checkbox_floor_for_ip.get()
+    porch_for_ip = checkbox_porch_for_ip.get()
     if decimal_format.get() == 'Запятая':
         dec = ','
     if checkbox_round_coords.get() is False:
@@ -200,7 +204,8 @@ def run_instrument():
             try:
                 AddressFiles(download_folder=df, final_folder=ff, output_format=output, check_coords=check_coords,
                              change_id_ate=id_ate, round_coords=round_coords, sk=sk_get, decimal_format=dec,
-                             fields=fields_excel, maska_file=maska_file, floor_for_ip=floor_for_ip).processing_data(csv_file)
+                             fields=fields_excel, maska_file=maska_file, floor_for_ip=floor_for_ip,
+                             porch_for_ip=porch_for_ip).processing_data(csv_file)
                 current_file = csv_file
             except Exception as error:
                 error_message = repr(error)
@@ -389,11 +394,11 @@ fill_round_entry.grid(column=2, row=6, sticky=W, pady=2)
 fields_settings_label = Label(window, text='Настройка полей', font=("Georgia", 11), width=15)
 fields_settings_label.grid(column=3, row=0, sticky=W)
 
-fields_table_frame = Frame(window, width=670, height=625, bg='white', bd=5, relief='ridge')
+fields_table_frame = Frame(window, width=760, height=650, bg='white', bd=5, relief='ridge')
 fields_table_frame.grid(column=3, row=1, columnspan=5, rowspan=70, padx=5)
 fields_table_frame.grid_propagate(False)
 
-my_canvas = Canvas(fields_table_frame, bg='white', width=490, height=390)
+my_canvas = Canvas(fields_table_frame, bg='white', width=720, height=630)
 my_canvas.grid(column=0, row=0, sticky="news")
 
 scrollbar = Scrollbar(fields_table_frame, orient=VERTICAL, command=my_canvas.yview)
@@ -414,7 +419,7 @@ for n, items in enumerate(fields_excel):
 for n in range(len(list_checkboxes)):
     Checkbutton(inner_frame, variable=list_checkboxes[n], command=table_disable_enable).grid(row=n, column=0,
                                                                                              sticky='news')
-    Label(inner_frame, text=fields_excel[n][0], width=51, anchor='w', bd=0.5, relief='solid').grid(row=n, column=1,
+    Label(inner_frame, text=fields_excel[n][0], width=63, anchor='w', bd=0.5, relief='solid').grid(row=n, column=1,
                                                                                                    sticky='w')
     default_col3 = StringVar(inner_frame, fields_excel[n][1])
     Entry(inner_frame, width=25, textvariable=default_col3, state=DISABLED).grid(row=n, column=2, sticky='w', padx=10)
@@ -445,17 +450,23 @@ checkbox_floor_for_ip.set(False)
 checkbox_floor_for_ip_button = Checkbutton(window, variable=checkbox_floor_for_ip)
 checkbox_floor_for_ip_button.grid(column=1, row=8, pady=2)
 
+# Подъезд для ИП
+checkbox_porch_for_ip_label = Label(window, text='Значение подъезда только\nдля ИП', font=("Georgia", 11), width=22)
+checkbox_porch_for_ip_label.grid(column=0, row=9, sticky=W)
+checkbox_porch_for_ip = BooleanVar()
+checkbox_porch_for_ip.set(False)
+checkbox_porch_for_ip_button = Checkbutton(window, variable=checkbox_porch_for_ip)
+checkbox_porch_for_ip_button.grid(column=1, row=9, pady=2)
+
 # Кнопка запуска обработки
 start_button = Button(window, text="Старт", width=50, pady=3,
                       command=start_button_func, font=("Georgia", 9), bg='#54C571')
-start_button.grid(row=9, column=0, columnspan=3)
+start_button.grid(row=10, column=0, columnspan=3)
 
 # Окно статуса выполнения
-logger_window = Text(window, width=50, height=21, borderwidth=3)
-logger_window.grid(row=10, column=0, columnspan=3, pady=2)
+logger_window = Text(window, width=50, height=20, borderwidth=3)
+logger_window.grid(row=11, column=0, columnspan=3, pady=2)
 
-
-my_canvas.config(width=640, height=610)
 my_canvas.config(scrollregion=my_canvas.bbox("all"))
 
 window.mainloop()
