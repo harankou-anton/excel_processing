@@ -4,13 +4,16 @@ import geopandas as gpd
 import openpyxl
 import csv
 import scr.default_values
+import scr.frames_for_coords_check
+
 
 fields_excel = scr.default_values.fields_excel
 
 
 class AddressFiles(object):
     def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate,
-                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False, porch_for_ip=False):
+                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False, porch_for_ip=False,
+                 separator_csv=";", prj_file='Нет', delete_coord_fields=False, quote_type='"', excel_split='По файлам'):
         self.download_folder = download_folder
         self.final_folder = final_folder
         self.maska_file = maska_file
@@ -23,6 +26,11 @@ class AddressFiles(object):
         self.decimal_format = decimal_format
         self.floor_for_ip = floor_for_ip
         self.porch_for_ip = porch_for_ip
+        self.separator_csv = separator_csv
+        self.prj_file = prj_file
+        self.delete_coords_fields = delete_coord_fields
+        self.quote_type = quote_type
+        self.excel_split = excel_split
 
     def get_fields(self):
         """
@@ -48,14 +56,14 @@ class AddressFiles(object):
         Функция округляет значения координат, до указанного в параметрах класса "round_coords" значения
         """
         xy = None
-        if self.sk == 1:
+        if self.fields[65][2] and self.fields[66][2]:
             xy = (65, 66)
-        elif self.sk == 2:
+        elif self.fields[63][2] and self.fields[64][2]:
             xy = (63, 64)
         dataframe[self.fields[xy[0]][1]] = dataframe[self.fields[xy[0]][1]].apply(
-            lambda x: str(round(float(x), self.round_coords)) if x != '' else x)
+            lambda x: str(round(float(x), int(self.round_coords))) if x != '' else x)
         dataframe[self.fields[xy[1]][1]] = dataframe[self.fields[xy[1]][1]].apply(
-            lambda x: str(round(float(x), self.round_coords)) if x != '' else x)
+            lambda x: str(round(float(x), int(self.round_coords))) if x != '' else x)
         return dataframe
 
     def change_decimal_sep(self, dataframe):
@@ -80,10 +88,11 @@ class AddressFiles(object):
             xy = (65, 66)
         elif self.sk == 2:
             xy = (63, 64)
-        data_regions = gpd.read_file(self.maska_file)
+        data_regions = scr.frames_for_coords_check.create_maska_frame(self.sk)
+
         df_coord = dataframe[dataframe[self.fields[xy[0]][1]] != ""]
         if self.fields[33][2]:
-            object_number_check = scr.default_values.object_number_check
+            object_number_check = scr.frames_for_coords_check.get_objectnumber_by_id_district()
 
             to_gdf = gpd.GeoDataFrame(df_coord,
                                       geometry=gpd.points_from_xy(df_coord[self.fields[xy[0]][1]],
@@ -92,7 +101,7 @@ class AddressFiles(object):
             intersect = to_gdf.sjoin(data_regions, how='inner')
             intersect['ID_DISTR_VALUES'] = intersect.apply(lambda x:
                                                            True if int(x[self.fields[33][1]])
-                                                                   in object_number_check[str(x['IDDISTRICT'])]
+                                                                   in object_number_check[str(int(x['IDDISTRICT']))]
                                                            else False, axis=1)
 
             correct_coords = intersect[intersect['ID_DISTR_VALUES'] == True]
@@ -180,38 +189,66 @@ class AddressFiles(object):
         schema = gpd.io.file.infer_schema(geo_dataframe)
         for row_name in self.get_fields()[2]:
             schema['properties'][row_name] = self.get_fields()[3][self.get_fields()[0].index(row_name)]
+
+        if self.delete_coords_fields:
+            if self.sk == 1:
+                geo_dataframe.drop(self.fields[65][1], axis=1, inplace=True)
+                geo_dataframe.drop(self.fields[66][1], axis=1, inplace=True)
+                del schema['properties'][self.fields[65][1]]
+                del schema['properties'][self.fields[66][1]]
+            elif self.sk == 2:
+                geo_dataframe.drop(self.fields[63][1], axis=1, inplace=True)
+                geo_dataframe.drop(self.fields[64][1], axis=1, inplace=True)
+                del schema['properties'][self.fields[63][1]]
+                del schema['properties'][self.fields[64][1]]
         geo_dataframe.to_file(os.path.join(self.final_folder, name[:-4]) + '.shp', driver='ESRI Shapefile',
                               encoding='utf-8', schema=schema, index=False)
+        if self.prj_file != 'Нет':
+            with open(f'{os.path.join(self.final_folder, name[:-4])}.prj', mode='w', encoding='utf-8') as writter:
+                writter.write(scr.default_values.prj_data[self.prj_file])
 
-    def save_to_excel(self, dataframe, name):
+    def save_to_excel(self, dataframe, name, save_format='По файлам'):
         """
         Функция сохраняет обработанную таблицу в формат excel
         """
+        if save_format == 'По листам':
+            cad_nums_cads = []
+            cad_nums_remark = []
+            with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx', datetime_format='DD.MM.YYYY',
+                                engine='xlsxwriter',
+                                engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                for sheet in range((dataframe.shape[0]-1)//1048575 + 1):
+                    df_for_save = dataframe[0+1048575*sheet:1048575*(sheet+1)]
+                    df_for_save.to_excel(
+                        writter, na_rep="", columns=self.get_fields()[2], index=False,
+                        sheet_name='Sheet{0}'.format(sheet+1))
 
-        if dataframe.shape[0] <= 1048575:
-            with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx',
-                                datetime_format='DD.MM.YYYY', engine='xlsxwriter',
-                                options={'strings_to_numbers': True}) as writter:
-                dataframe.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
-
-            if self.fields[7][2]:
-                cad_nums = list(dataframe[self.fields[7][1]])
-                self.write_cadnums_to_excel(
-                    excel=os.path.join(self.final_folder, name[:-4]) + '.xlsx',
-                    list_cadnums=cad_nums)
 
         else:
-            for sheet in range((dataframe.shape[0] - 1) // 1048575 + 1):
-                df_for_save = dataframe[0 + 1048575 * sheet:1048575 * (sheet + 1)]
-                with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
+            if dataframe.shape[0] <= 1048575:
+                with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx',
                                     datetime_format='DD.MM.YYYY', engine='xlsxwriter',
-                                    options={'strings_to_numbers': True}) as writter:
-                    df_for_save.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
+                                    engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                    dataframe.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
+
                 if self.fields[7][2]:
                     cad_nums = list(dataframe[self.fields[7][1]])
                     self.write_cadnums_to_excel(
-                        excel=os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
+                        excel=os.path.join(self.final_folder, name[:-4]) + '.xlsx',
                         list_cadnums=cad_nums)
+
+            else:
+                for sheet in range((dataframe.shape[0] - 1) // 1048575 + 1):
+                    df_for_save = dataframe[0 + 1048575 * sheet:1048575 * (sheet + 1)]
+                    with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
+                                        datetime_format='DD.MM.YYYY', engine='xlsxwriter',
+                                        engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                        df_for_save.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
+                    if self.fields[7][2]:
+                        cad_nums = list(dataframe[self.fields[7][1]])
+                        self.write_cadnums_to_excel(
+                            excel=os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
+                            list_cadnums=cad_nums)
 
     def write_cadnums_to_excel(self, excel, list_cadnums):
         """
@@ -223,14 +260,15 @@ class AddressFiles(object):
             worksheet.cell(row=pos + 2, column=int(self.get_fields()[2].index(self.fields[7][1]) + 1), value=value)
         workbook.save(excel)
 
-    def save_to_csv(self, dataframe, file_name):
+    def save_to_csv(self, dataframe, file_name, delimeter_csv, quotes_type):
         """
         Функция сохраняет обработанную таблицу в формат csv
         """
         dataframe[self.fields[9][1]] = dataframe[self.fields[9][1]].str.replace(';', '_')
         dataframe[self.fields[9][1]] = dataframe[self.fields[9][1]].str.replace(r'\n', ' ', regex=True)
-        dataframe.to_csv(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', sep=';', quoting=csv.QUOTE_NONE,
-                         index=False, date_format='%d.%m.%Y', columns=self.get_fields()[2], encoding='utf-8')
+
+        dataframe.to_csv(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', sep=delimeter_csv, quoting=csv.QUOTE_NONE,
+                         index=False, date_format='%d.%m.%Y', columns=self.get_fields()[2], encoding='utf-8', quotechar=quotes_type)
         with open(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', 'r', encoding='utf-8') as temp_file:
             open_file = temp_file.read()
             open_file = open_file.replace(".0;", ";")
@@ -260,7 +298,7 @@ class AddressFiles(object):
         if len(for_dates_parse) == 0:
             for_dates_parse = False
         df = pd.read_csv(file_name, sep=";", dtype=dict(zip(names, types)), na_filter=False, names=names,
-                         encoding='utf-8', header=0, parse_dates=for_dates_parse)
+                         encoding='utf-8', header=0, parse_dates=for_dates_parse, dayfirst=True)
 
         if self.fields[9][2]:
             df['full_block'] = df.apply(lambda x: 'блок ' + str(x[self.fields[55][1]]) if x[self.fields[55][1]] != ''
@@ -289,7 +327,7 @@ class AddressFiles(object):
         if self.change_id_ate is True:
             df = self.do_change_id_ate(df)
 
-        if self.round_coords is not False:
+        if self.round_coords.isnumeric():
             df = self.do_round_coords(df)
 
         if self.decimal_format == ',':
@@ -302,9 +340,10 @@ class AddressFiles(object):
             self.write_porch_for_ip(df)
 
         if self.output_format == 1:
-            self.save_to_excel(df, excel_file)
+            self.save_to_excel(df, excel_file, self.excel_split)
         elif self.output_format == 2:
-            self.save_to_csv(df, excel_file)
+            self.save_to_csv(df, excel_file, scr.default_values.csv_separator_values[self.separator_csv],
+                             scr.default_values.quoting_type[self.quote_type])
         elif self.output_format == 3:
             self.save_to_shp(df, excel_file)
 

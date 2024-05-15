@@ -1,0 +1,9 @@
+# created by virtualenv automatically
+venv/
+
+# PyCharm files
+.idea/
+
+/test/
+/build/
+/dist/
