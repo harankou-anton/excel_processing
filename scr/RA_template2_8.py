@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import openpyxl
@@ -212,53 +214,38 @@ class AddressFiles(object):
         Функция сохраняет обработанную таблицу в формат excel
         """
         if save_format == 'По листам':
-            cad_nums_cads = []
-            cad_nums_remark = []
             with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx', datetime_format='DD.MM.YYYY',
-                                engine='xlsxwriter',
-                                engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                                engine='xlsxwriter') as writter:
                 for sheet in range((dataframe.shape[0]-1)//1048575 + 1):
                     df_for_save = dataframe[0+1048575*sheet:1048575*(sheet+1)]
+                    df_for_save.replace('', np.nan, inplace=True)
+                    for column in df_for_save.columns:
+                        if column != self.fields[7][1]:
+                            df_for_save[column] = df_for_save[column].astype("float", errors='ignore')
                     df_for_save.to_excel(
                         writter, na_rep="", columns=self.get_fields()[2], index=False,
                         sheet_name='Sheet{0}'.format(sheet+1))
 
-
         else:
             if dataframe.shape[0] <= 1048575:
+                dataframe.replace('', np.nan, inplace=True)
+                for column in dataframe.columns:
+                    if column != self.fields[7][1]:
+                        dataframe[column] = dataframe[column].astype("float", errors='ignore')
                 with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '.xlsx',
-                                    datetime_format='DD.MM.YYYY', engine='xlsxwriter',
-                                    engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                                    datetime_format='DD.MM.YYYY', engine='xlsxwriter') as writter:
                     dataframe.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
-
-                if self.fields[7][2]:
-                    cad_nums = list(dataframe[self.fields[7][1]])
-                    self.write_cadnums_to_excel(
-                        excel=os.path.join(self.final_folder, name[:-4]) + '.xlsx',
-                        list_cadnums=cad_nums)
 
             else:
                 for sheet in range((dataframe.shape[0] - 1) // 1048575 + 1):
                     df_for_save = dataframe[0 + 1048575 * sheet:1048575 * (sheet + 1)]
+                    df_for_save.replace('', np.nan, inplace=True)
+                    for column in df_for_save.columns:
+                        if column != self.fields[7][1]:
+                            df_for_save[column] = df_for_save[column].astype("float", errors='ignore')
                     with pd.ExcelWriter(os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
-                                        datetime_format='DD.MM.YYYY', engine='xlsxwriter',
-                                        engine_kwargs={'options': {'strings_to_numbers': True}}) as writter:
+                                        datetime_format='DD.MM.YYYY', engine='xlsxwriter') as writter:
                         df_for_save.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
-                    if self.fields[7][2]:
-                        cad_nums = list(dataframe[self.fields[7][1]])
-                        self.write_cadnums_to_excel(
-                            excel=os.path.join(self.final_folder, name[:-4]) + '{0}.xlsx'.format(sheet + 1),
-                            list_cadnums=cad_nums)
-
-    def write_cadnums_to_excel(self, excel, list_cadnums):
-        """
-        Для сохранения кадастровых номеров как текста в excel файлах
-        """
-        workbook = openpyxl.load_workbook(excel)
-        worksheet = workbook.active
-        for pos, value in enumerate(list_cadnums):
-            worksheet.cell(row=pos + 2, column=int(self.get_fields()[2].index(self.fields[7][1]) + 1), value=value)
-        workbook.save(excel)
 
     def save_to_csv(self, dataframe, file_name, delimeter_csv, quotes_type):
         """

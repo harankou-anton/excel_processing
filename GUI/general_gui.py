@@ -67,7 +67,6 @@ class GeneralGUI(tk.LabelFrame):
         self.round_coords_number_label.grid(column=0, row=6, sticky=tk.W)
         self.round_coords_number = tk.Entry(self, width=5, font=("Georgia", 8), validate='key',
                                          validatecommand=(self.validate_digits, '%S'), name='round_coords_number')
-        self.round_coords_number.insert(0, '6')
         self.round_coords_number.grid(column=1, row=6, sticky=tk.W, pady=2, padx=15)
 
         # Этаж для ИП

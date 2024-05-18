@@ -7,3 +7,11 @@ venv/
 /test/
 /build/
 /dist/
+/.spec
+/1.json
+/New_GUI.spec
+/test.py
+/test_template.json
+/test_template1.json
+/transfer_to_json.py
+/Общие параметры.docx

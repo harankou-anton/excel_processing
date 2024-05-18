@@ -6,7 +6,7 @@ class ExcelGUI(tk.LabelFrame):
     def __init__(self, master):
         super().__init__(master, width=800, height=650, bg='white', bd=2, relief='groove', text='Параметры Excel',
                          font=("Georgia", 10), name='excel_frame')
-        self.excel_split_label = tk.Label(self, text='Разбивка более\nмиллиона записей(TODO)', font=("Georgia", 11),
+        self.excel_split_label = tk.Label(self, text='Разбивка более\nмиллиона записей', font=("Georgia", 11),
                                     width=22, background='white')
         self.excel_split_label.grid(column=0, row=0, sticky=tk.W)
         self.excel_split = ttk.Combobox(self, width=18, font=("Georgia", 8), name='excel_split')
