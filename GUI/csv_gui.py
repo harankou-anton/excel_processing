@@ -26,7 +26,7 @@ class CSVGUI(tk.LabelFrame):
         self.separator_csv.grid(column=1, row=1)
 
         # Обернуть данные в кавычки
-        self.quote_label = tk.Label(self, text='Обернуть в кавычки (TODO)', font=("Georgia", 11), width=22,
+        self.quote_label = tk.Label(self, text='Обернуть в кавычки', font=("Georgia", 11), width=22,
                                     background='white', name='quote_label')
         self.quote_label.grid(column=0, row=2, sticky=tk.W)
         self.quote_value = ttk.Combobox(self, width=18, font=("Georgia", 8), name='quote_value')
@@ -36,13 +36,13 @@ class CSVGUI(tk.LabelFrame):
         self.quote_value.bind("<<ComboboxSelected>>", self.enable_quote_type)
 
         # Вид кавычек
-        self.quote_type_label = tk.Label(self, text='Тип кавычек(TODO)', font=("Georgia", 11), width=22, background='white',
+        self.quote_type_label = tk.Label(self, text='Тип кавычек', font=("Georgia", 11), width=22, background='white',
                                          name='quote_type_label')
         self.quote_type_label.grid(column=0, row=3, sticky=tk.W)
-        self.quote_type_value = ttk.Combobox(self, width=18, font=("Georgia", 8), name='quote_type_value')
-        self.quote_type_value['values'] = ('Двойные', 'Одиночные')
-        self.quote_type_value.current(0)
-        self.quote_type_value.grid(column=1, row=3)
+        self.quote_type = ttk.Combobox(self, width=18, font=("Georgia", 8), name='quote_type')
+        self.quote_type['values'] = ('Двойные', 'Одиночные')
+        self.quote_type.current(0)
+        self.quote_type.grid(column=1, row=3)
 
         for child in self.winfo_children():
             child.configure(state='disable')
@@ -51,6 +51,6 @@ class CSVGUI(tk.LabelFrame):
 
     def enable_quote_type(self, *args):
         if self.quote_value.current() == 0:
-            self.quote_type_value.configure(state='disable')
+            self.quote_type.configure(state='disable')
         else:
-            self.quote_type_value.configure(state='normal')
+            self.quote_type.configure(state='normal')

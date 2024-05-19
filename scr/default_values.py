@@ -119,7 +119,7 @@ quoting_values = {
 
 quoting_type = {
     'Двойные': '"',
-    'Одиночные': '"'
+    'Одиночные': "'"
 }
 
 floor_name = {

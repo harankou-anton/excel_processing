@@ -3,7 +3,6 @@ import os
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-import openpyxl
 import csv
 import scr.default_values
 import scr.frames_for_coords_check
@@ -15,7 +14,8 @@ fields_excel = scr.default_values.fields_excel
 class AddressFiles(object):
     def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate,
                  round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False, porch_for_ip=False,
-                 separator_csv=";", prj_file='Нет', delete_coord_fields=False, quote_type='"', excel_split='По файлам'):
+                 separator_csv=";", prj_file='Нет', delete_coord_fields=False, quote_value=csv.QUOTE_NONE,
+                 quote_type='"', excel_split='По файлам', recount_floor=False):
         self.download_folder = download_folder
         self.final_folder = final_folder
         self.maska_file = maska_file
@@ -31,8 +31,10 @@ class AddressFiles(object):
         self.separator_csv = separator_csv
         self.prj_file = prj_file
         self.delete_coords_fields = delete_coord_fields
+        self.quote_value = quote_value
         self.quote_type = quote_type
         self.excel_split = excel_split
+        self.recount_floor = recount_floor
 
     def get_fields(self):
         """
@@ -162,6 +164,14 @@ class AddressFiles(object):
             lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
         return dataframe
 
+    def recount_floor_codes(self, dataframe):
+        """
+        Функция пересчитывает значения поля "Количество этажей(этаж)" с кодовых значений в текстовые
+        """
+        dataframe[self.fields[6][1]] = dataframe.apply(
+            lambda x: scr.default_values.floor_name[int(x[self.fields[6][1]])] if x[self.fields[6][1]] != '' else '', axis=1)
+        return dataframe
+
     def save_to_shp(self, dataframe, name):
         """
         Функция сохраняет данные в формате шейп файла
@@ -247,15 +257,22 @@ class AddressFiles(object):
                                         datetime_format='DD.MM.YYYY', engine='xlsxwriter') as writter:
                         df_for_save.to_excel(writter, na_rep="", columns=self.get_fields()[2], index=False)
 
-    def save_to_csv(self, dataframe, file_name, delimeter_csv, quotes_type):
+    def save_to_csv(self, dataframe, file_name, delimeter_csv, quote_value, quotes_type):
         """
         Функция сохраняет обработанную таблицу в формат csv
         """
         dataframe[self.fields[9][1]] = dataframe[self.fields[9][1]].str.replace(';', '_')
         dataframe[self.fields[9][1]] = dataframe[self.fields[9][1]].str.replace(r'\n', ' ', regex=True)
 
-        dataframe.to_csv(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', sep=delimeter_csv, quoting=csv.QUOTE_NONE,
-                         index=False, date_format='%d.%m.%Y', columns=self.get_fields()[2], encoding='utf-8', quotechar=quotes_type)
+        if quote_value == csv.QUOTE_NONNUMERIC:
+            dataframe.replace('', np.nan, inplace=True)
+            for column in dataframe.columns:
+                if column != self.fields[7][1]:
+                    dataframe[column] = dataframe[column].astype("float", errors='ignore')
+
+        dataframe.to_csv(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', sep=delimeter_csv,
+                         quoting=quote_value, index=False, date_format='%d.%m.%Y', columns=self.get_fields()[2],
+                         encoding='utf-8', quotechar=quotes_type)
         with open(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', 'r', encoding='utf-8') as temp_file:
             open_file = temp_file.read()
             open_file = open_file.replace(".0;", ";")
@@ -326,26 +343,16 @@ class AddressFiles(object):
         if self.porch_for_ip is True:
             self.write_porch_for_ip(df)
 
+        if self.recount_floor is True:
+            self.recount_floor_codes(df)
+
         if self.output_format == 1:
             self.save_to_excel(df, excel_file, self.excel_split)
         elif self.output_format == 2:
-            self.save_to_csv(df, excel_file, scr.default_values.csv_separator_values[self.separator_csv],
+            self.save_to_csv(df, excel_file,
+                             scr.default_values.csv_separator_values[self.separator_csv],
+                             scr.default_values.quoting_values[self.quote_value],
                              scr.default_values.quoting_type[self.quote_type])
         elif self.output_format == 3:
             self.save_to_shp(df, excel_file)
 
-
-def main():
-    AddressFiles(download_folder=r'D:\PycharmProjects\RA\test\input',  # Папка со скачанными эксель файлами
-                 final_folder=r'D:\PycharmProjects\RA\test\output',  # Папка для сохранения итоговых файлов
-                 maska_file=r'D:\PycharmProjects\RA\test\district_84_2023.shp',  # Файл с границами районов//городов областного подчинения для проверки координат (в файле обязательно поле "NAMEOBJECT" - наименование объекта)
-                 output_format=1,  # Формат сохранения итоговых файлов (1-excel, 2-csv, 3-shp)
-                 check_coords=False,  # Проверка корректности координат (True - выполняется, False - не выполняется)
-                 change_id_ate=False,  # Замена значения "Уникальный идентификатор АТЕ и ТЕ" на "Уникальный идентификатор населённого пункта" (True - выполняется, False - не выполняется)
-                 round_coords=False,  # Округление координат (Цифра - количество знаков после запятой, функция выполняется; False - не выполняется)
-                 sk=1,  # Система координат для проверки координат и/или формирования шейпа(1 - WGS 84, 2-CK63)
-                 fields=fields_excel)  # Ссылка на переменную с настроенными данными по полям
-
-
-if __name__ == '__main__':
-    main()

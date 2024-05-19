@@ -31,7 +31,7 @@ class MainGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.configure(background='#E9F3FF')
-        self.title('RA Excel Processing ver 1.0')
+        self.title('RA Excel Processing ver 1.1')
         self.resizable(False, False)
         self.path_image = resource_path2('favicon.png')
         self.photo = tk.PhotoImage(file=self.path_image)
@@ -97,7 +97,10 @@ class MainGUI(tk.Tk):
                              'separator_csv': self.csv_frame.children['separator_csv'].get(),
                              'prj_file': self.shape_frame.children['prj_file'].get(),
                              'delete_coord_fields': self.shape_frame.getvar('delete_coord_fields'),
-                             'excel_split': self.excel_frame.children['excel_split'].get()
+                             'quote_value': self.csv_frame.children['quote_value'].get(),
+                             'quote_type': self.csv_frame.children['quote_type'].get(),
+                             'excel_split': self.excel_frame.children['excel_split'].get(),
+                             'recount_floor': self.general_frame.getvar('recount_floor')
                              }
         self.options = {'fields': self.fields_frame.fields_excel[:], 'main_options': self.main_options}
         self.json_dump = json.dumps(self.options, ensure_ascii=False)
@@ -192,8 +195,10 @@ class MainGUI(tk.Tk):
         round_coords = self.general_frame.round_coords_number.get()
         prj_file = self.shape_frame.prj_file.get()
         delete_coord_fields = self.shape_frame.delete_coord_fields.get()
-        quote_type = self.csv_frame.quote_type_value.get()
+        quote_type = self.csv_frame.quote_type.get()
+        quote_value =self.csv_frame.quote_value.get()
         excel_split = self.excel_frame.excel_split.get()
+        recount_floor = self.general_frame.recount_floor.get()
         for csv_file in os.listdir(df):
             if csv_file[-4:] == '.csv':
                 try:
@@ -201,8 +206,9 @@ class MainGUI(tk.Tk):
                                  change_id_ate=id_ate, round_coords=round_coords, sk=sk_get, decimal_format=dec,
                                  fields=self.fields_frame.fields_excel, floor_for_ip=floor_for_ip,
                                  porch_for_ip=porch_for_ip, separator_csv=separator_csv, prj_file=prj_file,
-                                 delete_coord_fields=delete_coord_fields, quote_type=quote_type,
-                                 excel_split=excel_split).processing_data(csv_file)
+                                 delete_coord_fields=delete_coord_fields, quote_value=quote_value,
+                                 quote_type=quote_type, excel_split=excel_split,
+                                 recount_floor=recount_floor).processing_data(csv_file)
                     self.current_file = csv_file
                 except Exception as error:
                     self.error_message = repr(error)
@@ -216,33 +222,33 @@ class MainGUI(tk.Tk):
             self.start_button.configure(text='Старт', state='normal', bg='#54C571')
 
             if self.error_message == "":
-                self.logger_window.insert(0.0, f'--Файл {self.current_file} обработан успешно\n')
+                self.logger_window.insert(0.0, f'\n--Файл {self.current_file} обработан успешно\n')
             elif self.error_message == "ValueError('Number of passed names did not match number of header fields in the file')":
-                self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.current_file}. '
+                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. '
                                           f'Количество отмеченных полей и полей в файле не совпадает\n')
             elif "ValueError('Unable to convert" in self.error_message:
-                self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.current_file}. '
+                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. '
                                           f'Отмеченные поля и поля исходного файла не совпадают\n')
             else:
-                self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.current_file}. Ошибка {self.error_message}\n')
-            self.logger_window.insert(0.0, '--Обработка завершена\n')
+                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. Ошибка {self.error_message}\n')
+            self.logger_window.insert(0.0, '\n--Обработка завершена\n')
             self.current_file = ''
             self.previous_file = ''
             self.error_message = ''
         else:
             if self.previous_file != self.current_file and self.error_message == '':
                 self.previous_file = self.current_file
-                self.logger_window.insert(0.0, f'--Файл {self.previous_file} обработан успешно\n')
+                self.logger_window.insert(0.0, f'\n--Файл {self.previous_file} обработан успешно\n')
             elif self.previous_file != self.current_file and self.error_message != '':
                 self.previous_file = self.current_file
                 if self.error_message == "ValueError('Number of passed names did not match number of header fields in the file')":
-                    self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.previous_file}. '
+                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. '
                                               f'Количество отмеченных полей и полей в файле не совпадает\n')
                 elif "ValueError('Unable to convert" in self.error_message:
-                    self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.previous_file}. '
+                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. '
                                               f'Отмеченные поля и поля исходного файла не совпадают\n')
                 else:
-                    self.logger_window.insert(0.0, f'--Не удалось обработать файл {self.previous_file}. Ошибка {self.error_message}\n')
+                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. Ошибка {self.error_message}\n')
                 self.error_message = ''
 
             self.check_state(r_i)
@@ -256,7 +262,7 @@ class MainGUI(tk.Tk):
                                                       self.fields_frame.list_checkboxes[39].get() is False) and \
                 self.fields_frame.list_checkboxes[33].get() is False:
             self.logger_window.insert(0.0,
-                                      '--Для проверки координат должны быть отмечены и присутствовать в исходном файле '
+                                      '\n--Для проверки координат должны быть отмечены и присутствовать в исходном файле '
                                       'поля "Наименование района" + "Наименование населенного пункта на русском языке" или '
                                       '"Уникальный идентификатор населённого пункта"\n')
             return
