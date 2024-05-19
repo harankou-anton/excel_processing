@@ -88,13 +88,13 @@ class GeneralGUI(tk.LabelFrame):
         self.checkbox_porch_for_ip_button.grid(column=1, row=8, pady=2, padx=30, sticky=tk.W)
 
         # Пересчёт кодов этажей
-        self.checkbox_porch_recount_label = tk.Label(self, text='Пересчитать коды\nзначения этажей(TODO)', font=("Georgia", 11),
-                                                    width=22, background='white', name='checkbox_porch_recount_label')
-        self.checkbox_porch_recount_label.grid(column=0, row=9)
-        self.porch_recount = tk.BooleanVar(value=False, name='porch_recount')
-        self.checkbox_porch_recount_button = ttk.Checkbutton(self, variable=self.porch_recount,
-                                                            name='checkbox_porch_recount_button')
-        self.checkbox_porch_recount_button.grid(column=1, row=9, pady=2, padx=30, sticky=tk.W)
+        self.checkbox_floor_recount_label = tk.Label(self, text='Пересчитать коды\nзначения этажей(TODO)', font=("Georgia", 11),
+                                                    width=22, background='white', name='checkbox_floor_recount_label')
+        self.checkbox_floor_recount_label.grid(column=0, row=9)
+        self.recount_floor = tk.BooleanVar(value=False, name='recount_floor')
+        self.checkbox_floor_recount_button = ttk.Checkbutton(self, variable=self.recount_floor,
+                                                            name='checkbox_floor_recount_button')
+        self.checkbox_floor_recount_button.grid(column=1, row=9, pady=2, padx=30, sticky=tk.W)
 
         self.grid(column=0, row=0, padx=5, pady=5)
 
