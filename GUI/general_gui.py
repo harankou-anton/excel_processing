@@ -88,7 +88,7 @@ class GeneralGUI(tk.LabelFrame):
         self.checkbox_porch_for_ip_button.grid(column=1, row=8, pady=2, padx=30, sticky=tk.W)
 
         # Пересчёт кодов этажей
-        self.checkbox_floor_recount_label = tk.Label(self, text='Пересчитать коды\nзначения этажей(TODO)', font=("Georgia", 11),
+        self.checkbox_floor_recount_label = tk.Label(self, text='Пересчитать коды\nзначения этажей', font=("Georgia", 11),
                                                     width=22, background='white', name='checkbox_floor_recount_label')
         self.checkbox_floor_recount_label.grid(column=0, row=9)
         self.recount_floor = tk.BooleanVar(value=False, name='recount_floor')

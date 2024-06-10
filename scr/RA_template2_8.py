@@ -153,7 +153,8 @@ class AddressFiles(object):
         Функция оставляет значения поля "Количество этажей(этаж)" только для изолированных помещений
         """
         dataframe[self.fields[6][1]] = dataframe.apply(
-            lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
+            lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8
+                                              or x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
         return dataframe
 
     def write_porch_for_ip(self, dataframe):
@@ -161,15 +162,16 @@ class AddressFiles(object):
         Функция оставляет значения поля "Количество подъездов (подъезд)" только для изолированных помещений
         """
         dataframe[self.fields[5][1]] = dataframe.apply(
-            lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8 else None, axis=1)
+            lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8
+                                              or x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
         return dataframe
 
     def recount_floor_codes(self, dataframe):
         """
         Функция пересчитывает значения поля "Количество этажей(этаж)" с кодовых значений в текстовые
         """
-        dataframe[self.fields[6][1]] = dataframe.apply(
-            lambda x: scr.default_values.floor_name[int(x[self.fields[6][1]])] if x[self.fields[6][1]] != '' else '', axis=1)
+        dataframe[self.fields[6][1]] = dataframe[self.fields[6][1]].apply(
+            lambda x: scr.default_values.floor_name[int(x)] if x != '' else '')
         return dataframe
 
     def save_to_shp(self, dataframe, name):
