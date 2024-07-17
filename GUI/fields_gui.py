@@ -61,15 +61,6 @@ class FieldsGUI(tk.LabelFrame):
 
         self.grid(column=2, row=0, padx=5, pady=5, rowspan=20)
 
-    # def table_disable_enable(self, *args):
-    #     for num, button in enumerate(self.list_checkboxes):
-    #         if button.get() is True:
-    #             self.inner_frame.grid_slaves(row=num, column=2)[0].config(state=tk.NORMAL)
-    #             self.inner_frame.grid_slaves(row=num, column=3)[0].config(state=tk.NORMAL)
-    #         else:
-    #             self.inner_frame.grid_slaves(row=num, column=3)[0].delete(0, tk.END)
-    #             self.inner_frame.grid_slaves(row=num, column=2)[0].config(state=tk.DISABLED)
-    #             self.inner_frame.grid_slaves(row=num, column=3)[0].config(state=tk.DISABLED)
 
     def table_disable_enable(self, *args):
         self.get_position_values = set([int(self.inner_frame.grid_slaves(row=row, column=3)[0].get())

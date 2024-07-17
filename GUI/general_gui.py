@@ -123,6 +123,3 @@ class GeneralGUI(tk.LabelFrame):
             return '--Не указана "Папка с исходниками"\n'
         if self.final_folder_path.get() == '':
             return '--Не указана "Итоговая папка"\n'
-        # if self.round_coords_number.get() == '':
-        #     return '--Не указано значение "Округление координат"\n'
-

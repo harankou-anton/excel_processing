@@ -51,7 +51,7 @@ class AddressFiles(object):
         final_order = [x[1] for x in temp]
         for field in range(len(final_order))[::-1]:
             if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
-                    final_order[field] == fields_excel[86][1] or final_order[field] == fields_excel[87][1]:
+                    final_order[field] == fields_excel[87][1] or final_order[field] == fields_excel[88][1]:
                 final_order.pop(field)
         return header, types, final_order, types_shp
 
@@ -309,11 +309,11 @@ class AddressFiles(object):
         if self.fields[9][2]:
             df['full_block'] = df.apply(lambda x: 'блок ' + str(x[self.fields[55][1]]) if x[self.fields[55][1]] != ''
             else "", axis=1)
-            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[87][1]] if x[self.fields[87][1]] != ''
+            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[88][1]] if x[self.fields[88][1]] != ''
             else "", axis=1)
 
             df['full_remark'] = df[df.columns[[df.columns.get_loc('full_block'),
-                                               df.columns.get_loc(self.fields[86][1]),
+                                               df.columns.get_loc(self.fields[87][1]),
                                                df.columns.get_loc('settlement'),
                                                df.columns.get_loc(self.fields[9][1])]]].apply(
                lambda x: ', '.join(x[x!=''].astype(str)), axis=1

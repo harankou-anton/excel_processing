@@ -87,8 +87,9 @@ fields_excel = [
     ['Родительское КС (для ИП)', 'PARENT_KS', False, "object", 84, "int32"],
     ["Полное наименование категории населенного пункта на белорусском языке", "NAME_BY", False, "object", 85, "str:55"],
     ["Краткое наименование категории населенного пункта на белорусском языке", "SHNAME_BY", False, "object", 86, "str:6"],
-    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 87, "str"],
-    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 88, "str"],
+    ["Район в городе", "IN_DIST_NAM", False, "object", 87, "str"],
+    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 88, "str"],
+    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 89, "str"],
 
 ]
 

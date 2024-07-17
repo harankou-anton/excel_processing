@@ -31,7 +31,7 @@ class MainGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.configure(background='#E9F3FF')
-        self.title('RA Excel Processing ver 1.2')
+        self.title('RA Excel Processing ver 1.3')
         self.resizable(False, False)
         self.path_image = resource_path2('favicon.png')
         self.photo = tk.PhotoImage(file=self.path_image)
