@@ -6,6 +6,8 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter.ttk import Style
 
+from pandas import read_csv
+
 from GUI.general_gui import GeneralGUI
 from GUI.excel_gui import ExcelGUI
 from GUI.csv_gui import CSVGUI
@@ -31,7 +33,7 @@ class MainGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.configure(background='#E9F3FF')
-        self.title('RA Excel Processing ver 1.3')
+        self.title('RA Excel Processing ver 1.4')
         self.resizable(False, False)
         self.path_image = resource_path2('favicon.png')
         self.photo = tk.PhotoImage(file=self.path_image)
@@ -56,7 +58,7 @@ class MainGUI(tk.Tk):
 
         # Окно статуса выполнения
         self.logger_frame = tk.LabelFrame(self, text='Результаты выполнения', bg='white', bd=2, relief='groove', font=("Georgia", 10))
-        self.logger_window = tk.Text(self.logger_frame, width=48, height=41, borderwidth=1,)
+        self.logger_window = tk.Text(self.logger_frame, width=48, height=43, borderwidth=1,)
         self.logger_window.grid(row=0, column=0, pady=5, padx=5,)
         self.logger_frame.grid(row=0, column=1, pady=5, padx=5, rowspan=5, sticky=tk.N)
 
@@ -100,7 +102,8 @@ class MainGUI(tk.Tk):
                              'quote_value': self.csv_frame.children['quote_value'].get(),
                              'quote_type': self.csv_frame.children['quote_type'].get(),
                              'excel_split': self.excel_frame.children['excel_split'].get(),
-                             'recount_floor': self.general_frame.getvar('recount_floor')
+                             'recount_floor': self.general_frame.getvar('recount_floor'),
+                             'rewrite_remark': self.general_frame.getvar('rewrite_remark')
                              }
         self.options = {'fields': self.fields_frame.fields_excel[:], 'main_options': self.main_options}
         self.json_dump = json.dumps(self.options, ensure_ascii=False)
@@ -196,9 +199,10 @@ class MainGUI(tk.Tk):
         prj_file = self.shape_frame.prj_file.get()
         delete_coord_fields = self.shape_frame.delete_coord_fields.get()
         quote_type = self.csv_frame.quote_type.get()
-        quote_value =self.csv_frame.quote_value.get()
+        quote_value = self.csv_frame.quote_value.get()
         excel_split = self.excel_frame.excel_split.get()
         recount_floor = self.general_frame.recount_floor.get()
+        rewrite_remark = self.general_frame.rewrite_remark.get()
         for csv_file in os.listdir(df):
             if csv_file[-4:] == '.csv':
                 try:
@@ -208,7 +212,7 @@ class MainGUI(tk.Tk):
                                  porch_for_ip=porch_for_ip, separator_csv=separator_csv, prj_file=prj_file,
                                  delete_coord_fields=delete_coord_fields, quote_value=quote_value,
                                  quote_type=quote_type, excel_split=excel_split,
-                                 recount_floor=recount_floor).processing_data(csv_file)
+                                 recount_floor=recount_floor, rewrite_remark=rewrite_remark).processing_data(csv_file)
                     self.current_file = csv_file
                 except Exception as error:
                     self.error_message = repr(error)
@@ -223,12 +227,6 @@ class MainGUI(tk.Tk):
 
             if self.error_message == "":
                 self.logger_window.insert(0.0, f'\n--Файл {self.current_file} обработан успешно\n')
-            elif self.error_message == "ValueError('Number of passed names did not match number of header fields in the file')":
-                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. '
-                                          f'Количество отмеченных полей и полей в файле не совпадает\n')
-            elif "ValueError('Unable to convert" in self.error_message:
-                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. '
-                                          f'Отмеченные поля и поля исходного файла не совпадают\n')
             else:
                 self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.current_file}. Ошибка {self.error_message}\n')
             self.logger_window.insert(0.0, '\n--Обработка завершена\n')
@@ -241,14 +239,7 @@ class MainGUI(tk.Tk):
                 self.logger_window.insert(0.0, f'\n--Файл {self.previous_file} обработан успешно\n')
             elif self.previous_file != self.current_file and self.error_message != '':
                 self.previous_file = self.current_file
-                if self.error_message == "ValueError('Number of passed names did not match number of header fields in the file')":
-                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. '
-                                              f'Количество отмеченных полей и полей в файле не совпадает\n')
-                elif "ValueError('Unable to convert" in self.error_message:
-                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. '
-                                              f'Отмеченные поля и поля исходного файла не совпадают\n')
-                else:
-                    self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. Ошибка {self.error_message}\n')
+                self.logger_window.insert(0.0, f'\n--Не удалось обработать файл {self.previous_file}. Ошибка {self.error_message}\n')
                 self.error_message = ''
 
             self.check_state(r_i)
@@ -271,10 +262,54 @@ class MainGUI(tk.Tk):
             self.logger_window.insert(0.0, self.fields_frame.validate_positions())
             return
 
+        if self.compare_headers(self.general_frame.download_folder_path.get()):
+            self.logger_window.insert(0.0, self.compare_headers(self.general_frame.download_folder_path.get()))
+            return
+
         self.start_button.configure(text='Выполняется...', state='disabled', bg='#FF7F50')
         r_i = threading.Thread(target=self.run_instrument)
         r_i.start()
         self.check_state(r_i)
+
+    # Проверка структуры файлов и шаблона
+    def compare_headers(self, origin_folder):
+        self.fields_frame.update_fields_excel()
+        pattern_header = set(pattern_field[0] for pattern_field in self.fields_frame.fields_excel if pattern_field[2])
+        errors_container = []
+        for file_name in os.listdir(origin_folder):
+            if file_name[-4:] == '.csv':
+                file_header = set(read_csv(os.path.join(origin_folder, file_name), sep=';', nrows=0))
+                in_file = file_header.difference(pattern_header)
+                in_pattern = pattern_header.difference(file_header)
+                if len(in_file) > 0 and len(in_pattern) > 0:
+                    error_message = f"""
+                                    
+Файл {file_name} содержит поля "{', '.join(in_file)}" не отмеченные в шаблоне
+
+В шаблоне отмечены поля "{', '.join(in_pattern)}" отсутствующие в выгруженом файле {file_name}
+
+"""
+                    errors_container.append(error_message)
+
+                elif len(in_file) > 0 and len(in_pattern) == 0:
+                    error_message = f"""
+                    
+Файл {file_name} содержит поля "{', '.join(in_file)}" не отмеченные в шаблоне
+
+"""
+                    errors_container.append(error_message)
+
+                elif len(in_file) == 0 and len(in_pattern) > 0:
+                    error_message = f"""
+                    
+В шаблоне отмечены поля "{', '.join(in_pattern)}" отсутствующие в выгруженом файле {file_name}
+
+"""
+                    errors_container.append(error_message)
+
+        if errors_container:
+            return f'''
+--В структурах файлов и шаблона имеются следующие различия: {"".join(errors_container)}'''
 
 
 if __name__ == "__main__":

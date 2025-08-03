@@ -9,7 +9,7 @@ def validate(symbol):
 
 class FieldsGUI(tk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master, width=745, height=680, bg='white', bd=2, relief='groove', text='Настройка полей',
+        super().__init__(master, width=745, height=725, bg='white', bd=2, relief='groove', text='Настройка полей',
                          font=("Georgia", 10), name='fields_frame')
 
         self.positions_set = set(range(1, 90))
@@ -28,7 +28,7 @@ class FieldsGUI(tk.LabelFrame):
                                               name='upload_fields_config')
         self.upload_fields_config.grid(row=0, column=1, pady=5)
 
-        self.my_canvas = tk.Canvas(self, bg='white', width=720, height=620)
+        self.my_canvas = tk.Canvas(self, bg='white', width=720, height=665)
         self.my_canvas.grid(column=0, row=1, sticky="news", columnspan=2)
 
         self.scrollbar = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.my_canvas.yview)

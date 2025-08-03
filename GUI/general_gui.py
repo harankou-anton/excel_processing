@@ -96,6 +96,18 @@ class GeneralGUI(tk.LabelFrame):
                                                             name='checkbox_floor_recount_button')
         self.checkbox_floor_recount_button.grid(column=1, row=9, pady=2, padx=30, sticky=tk.W)
 
+        # self.grid(column=0, row=0, padx=5, pady=5)
+
+        # Перезаписать поле Remark
+        self.checkbox_rewrite_remark_label = tk.Label(self, text='Удалить доп. поля\nдля Remark',
+                                                     font=("Georgia", 11),
+                                                     width=22, background='white', name='checkbox_rewrite_remark_label')
+        self.checkbox_rewrite_remark_label.grid(column=0, row=10)
+        self.rewrite_remark = tk.BooleanVar(value=True, name='rewrite_remark')
+        self.checkbox_rewrite_remark_button = ttk.Checkbutton(self, variable=self.rewrite_remark,
+                                                             name='checkbox_rewrite_remark_button')
+        self.checkbox_rewrite_remark_button.grid(column=1, row=10, pady=2, padx=30, sticky=tk.W)
+
         self.grid(column=0, row=0, padx=5, pady=5)
 
     def choose_download_folder(self):

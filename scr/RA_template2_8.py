@@ -12,10 +12,10 @@ fields_excel = scr.default_values.fields_excel
 
 
 class AddressFiles(object):
-    def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate,
-                 round_coords, fields, sk=1, maska_file="", decimal_format='.', floor_for_ip=False, porch_for_ip=False,
+    def __init__(self, download_folder, final_folder, output_format, check_coords, change_id_ate, round_coords,
+                 fields, sk=1, maska_file="", decimal_format='Точка', floor_for_ip=False, porch_for_ip=False,
                  separator_csv=";", prj_file='Нет', delete_coord_fields=False, quote_value=csv.QUOTE_NONE,
-                 quote_type='"', excel_split='По файлам', recount_floor=False):
+                 quote_type='"', excel_split='По файлам', recount_floor=False, rewrite_remark=True):
         self.download_folder = download_folder
         self.final_folder = final_folder
         self.maska_file = maska_file
@@ -35,6 +35,7 @@ class AddressFiles(object):
         self.quote_type = quote_type
         self.excel_split = excel_split
         self.recount_floor = recount_floor
+        self.rewrite_remark = rewrite_remark
 
     def get_fields(self):
         """
@@ -50,9 +51,10 @@ class AddressFiles(object):
         temp = sorted(temp, key=lambda x: x[4])
         final_order = [x[1] for x in temp]
         for field in range(len(final_order))[::-1]:
-            if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
-                    final_order[field] == fields_excel[87][1] or final_order[field] == fields_excel[88][1]:
-                final_order.pop(field)
+            if self.rewrite_remark:
+                if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
+                        final_order[field] == fields_excel[87][1] or final_order[field] == fields_excel[88][1]:
+                    final_order.pop(field)
         return header, types, final_order, types_shp
 
     def do_round_coords(self, dataframe):
@@ -152,26 +154,39 @@ class AddressFiles(object):
         """
         Функция оставляет значения поля "Количество этажей(этаж)" только для изолированных помещений
         """
-        dataframe[self.fields[6][1]] = dataframe.apply(
-            lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8
-                                              or x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
+        if self.fields[4][2]:
+            dataframe[self.fields[6][1]] = dataframe.apply(
+                lambda x: x[self.fields[6][1]] if x[self.fields[4][1]] == 8 else '', axis=1)
+        elif self.fields[22][2]:
+            dataframe[self.fields[6][1]] = dataframe.apply(
+                lambda x: x[self.fields[6][1]] if x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
         return dataframe
 
     def write_porch_for_ip(self, dataframe):
         """
         Функция оставляет значения поля "Количество подъездов (подъезд)" только для изолированных помещений
         """
-        dataframe[self.fields[5][1]] = dataframe.apply(
-            lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8
-                                              or x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
+        if self.fields[4][2]:
+            dataframe[self.fields[5][1]] = dataframe.apply(
+                lambda x: x[self.fields[5][1]] if x[self.fields[4][1]] == 8 else '', axis=1)
+        elif self.fields[22][2]:
+            dataframe[self.fields[5][1]] = dataframe.apply(
+                lambda x: x[self.fields[5][1]] if x[self.fields[22][1]] == 'Изолированное помещение' else '', axis=1)
         return dataframe
 
     def recount_floor_codes(self, dataframe):
         """
-        Функция пересчитывает значения поля "Количество этажей(этаж)" с кодовых значений в текстовые
+        Функция пересчитывает значения поля "Количество этажей(этаж)" с кодовых значений в текстовые (только для ИП)
         """
-        dataframe[self.fields[6][1]] = dataframe[self.fields[6][1]].apply(
-            lambda x: scr.default_values.floor_name[int(x)] if x != '' else '')
+        if self.fields[4][2]:
+            dataframe[self.fields[6][1]] = dataframe.apply(
+                lambda x: scr.default_values.floor_name[int(x[self.fields[6][1]])]
+                if x[self.fields[4][1]] == 8 and x[self.fields[6][1]] != '' else x[self.fields[6][1]], axis=1)
+        elif self.fields[22][2]:
+            dataframe[self.fields[6][1]] = dataframe.apply(
+                lambda x: scr.default_values.floor_name[int(x[self.fields[6][1]])]
+                if x[self.fields[22][1]] == 'Изолированное помещение' and x[self.fields[6][1]] != ''
+                else x[self.fields[6][1]], axis=1)
         return dataframe
 
     def save_to_shp(self, dataframe, name):
@@ -336,7 +351,7 @@ class AddressFiles(object):
         if self.round_coords.isnumeric():
             df = self.do_round_coords(df)
 
-        if self.decimal_format == ',':
+        if self.decimal_format == 'Запятая':
             self.change_decimal_sep(df)
 
         if self.floor_for_ip is True:
