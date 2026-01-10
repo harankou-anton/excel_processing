@@ -88,8 +88,9 @@ fields_excel = [
     ["Полное наименование категории населенного пункта на белорусском языке", "NAME_BY", False, "object", 85, "str:55"],
     ["Краткое наименование категории населенного пункта на белорусском языке", "SHNAME_BY", False, "object", 86, "str:6"],
     ["Район в городе", "IN_DIST_NAM", False, "object", 87, "str"],
-    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 88, "str"],
-    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 89, "str"],
+    ["Административное значение", "ADM_VALUE", False, "object", 88, "str"],
+    ["Наименование гаражного кооператива", "GARAGE_IAE_NAME", False, "object", 89, "str"],
+    ["Наименование ближайшего населенного пункта", "NEAREST_SETTLEMENT_NAME", False, "object", 90, "str"],
 
 ]
 
@@ -109,7 +110,8 @@ csv_delimeter_values = {
 csv_separator_values = {
     'Точка с запятой': ';',
     'Табуляция': '\t',
-    'Вертикальная черта': '|'
+    'Вертикальная черта': '|',
+    'Запятая': ','
 }
 
 quoting_values = {

@@ -33,7 +33,7 @@ class MainGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.configure(background='#E9F3FF')
-        self.title('RA Excel Processing ver 1.4')
+        self.title('RA Excel Processing ver 1.5')
         self.resizable(False, False)
         self.path_image = resource_path2('favicon.png')
         self.photo = tk.PhotoImage(file=self.path_image)
@@ -215,7 +215,7 @@ class MainGUI(tk.Tk):
                                  recount_floor=recount_floor, rewrite_remark=rewrite_remark).processing_data(csv_file)
                     self.current_file = csv_file
                 except Exception as error:
-                    self.error_message = repr(error)
+                    self.error_message = error
                     self.current_file = csv_file
 
     def check_state(self, func):

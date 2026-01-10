@@ -21,7 +21,7 @@ class CSVGUI(tk.LabelFrame):
                                         background='white', name='separator_label')
         self.separator_csv_label.grid(column=0, row=1, sticky=tk.W)
         self.separator_csv = ttk.Combobox(self, width=18, font=("Georgia", 8), name='separator_csv')
-        self.separator_csv['values'] = ('Точка с запятой', 'Табуляция', 'Вертикальная черта')
+        self.separator_csv['values'] = ('Точка с запятой', 'Табуляция', 'Вертикальная черта', 'Запятая')
         self.separator_csv.current(0)
         self.separator_csv.grid(column=1, row=1)
 

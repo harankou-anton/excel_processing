@@ -53,7 +53,7 @@ class AddressFiles(object):
         for field in range(len(final_order))[::-1]:
             if self.rewrite_remark:
                 if final_order[field] == fields_excel[55][1] or final_order[field] == fields_excel[57][1] or \
-                        final_order[field] == fields_excel[87][1] or final_order[field] == fields_excel[88][1]:
+                        final_order[field] == fields_excel[88][1] or final_order[field] == fields_excel[89][1]:
                     final_order.pop(field)
         return header, types, final_order, types_shp
 
@@ -292,7 +292,7 @@ class AddressFiles(object):
                          encoding='utf-8', quotechar=quotes_type)
         with open(os.path.join(self.final_folder, file_name[:-4]) + '_temp.csv', 'r', encoding='utf-8') as temp_file:
             open_file = temp_file.read()
-            open_file = open_file.replace(".0;", ";")
+            open_file = open_file.replace(f".0{delimeter_csv}", f"{delimeter_csv}").replace(f'{quotes_type}{quotes_type}', '')
             final_file = open(os.path.join(self.final_folder, file_name[:-4]) + '.csv', 'w', encoding='utf-8')
             final_file.write(open_file)
             final_file.close()
@@ -324,11 +324,11 @@ class AddressFiles(object):
         if self.fields[9][2]:
             df['full_block'] = df.apply(lambda x: 'блок ' + str(x[self.fields[55][1]]) if x[self.fields[55][1]] != ''
             else "", axis=1)
-            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[88][1]] if x[self.fields[88][1]] != ''
+            df['settlement'] = df.apply(lambda x: 'вблизи ' + x[self.fields[89][1]] if x[self.fields[89][1]] != ''
             else "", axis=1)
 
             df['full_remark'] = df[df.columns[[df.columns.get_loc('full_block'),
-                                               df.columns.get_loc(self.fields[87][1]),
+                                               df.columns.get_loc(self.fields[88][1]),
                                                df.columns.get_loc('settlement'),
                                                df.columns.get_loc(self.fields[9][1])]]].apply(
                lambda x: ', '.join(x[x!=''].astype(str)), axis=1
